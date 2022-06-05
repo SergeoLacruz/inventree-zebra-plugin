@@ -13,15 +13,9 @@ This plugin supports printing to just GK420T with one label size (50x30) so far.
 Install this plugin as follows:
 
 ```
-pip install git+https://github.com/inventree/inventree-zebra-plugin
+pip install git+https://github.com/SergeoLacruz/inventree-zebra-plugin
 ```
 
-Or, add to your `plugins.txt` file:
-
-```
- git+https://github.com/inventree/inventree-zebra-plugin
-```
  
 ## Configuration Options
 
-**TODO**
