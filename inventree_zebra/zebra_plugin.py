@@ -25,15 +25,15 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
     DESCRIPTION = "Label printing plugin for Zebra printers"
     VERSION = ZEBRA_PLUGIN_VERSION
 
-    PLUGIN_NAME = "Zebra"
-    PLUGIN_SLUG = "zebra"
-    PLUGIN_TITLE = "Zebra Label Printer"
+    NAME = "Zebra"
+    SLUG = "zebra"
+    TITLE = "Zebra Label Printer"
 
     SETTINGS = {
         'CONNECTION': {
             'name': _('Printer Interface'),
             'description': _('Select local or network printer'),
-            'choices': [('local','Local'),('network','Network')],
+            'choices': [('local','Local printer e.g. USB'),('network','Network printer with IP address')],
             'default': 'local',
         },
         'IP_ADDRESS': {
@@ -43,18 +43,18 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
         },
         'PORT': {
             'name': _('Port'),
-            'description': _('Port in case of network printer'),
+            'description': _('Network port in case of network printer'),
             'default': '9100',
         },
         'LOCAL_IF': {
             'name': _('Local Device'),
-            'description': _('Interfase of local printer'),
+            'description': _('Interface of local printer'),
             'default': '/dev/usb/lp0',
         },
 
     }
 
-    def print_label(self, label_image, **kwargs):
+    def print_label(self, **kwargs):
 
         # TODO: Improve label auto-scaling based on provided width and height information
 
@@ -67,6 +67,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
         Connection = self.get_setting('CONNECTION')
         Interface = self.get_setting('LOCAL_IF')
         Port = self.get_setting('PORT')
+        label_image = kwargs['png_file']
 
         # Convert image to Zebra zpl
         l = zpl.Label(400,240)
@@ -82,6 +83,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
                 printer.close()
             except:
                 print('Error: Printer not available')
+                raise ConnectionError('Error connecting to local printer')
         elif(Connection=='network'):    
             try:
                 mysocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -91,5 +93,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
                 mysocket.close ()
             except:
                 print("Error with the connection")
+                raise ConnectionError('Error connecting to network printer')
         else:
             print('Unknown Interface')
