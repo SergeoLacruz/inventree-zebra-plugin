@@ -58,8 +58,8 @@ The name of the class can be freely chosen. You reference to it in tne entry_poi
 The parameters need to be like in the example. Then there is the description block. The keywords are fixed and 
 need to be like that. The values are found in the UI as shown in the pictures below.
 
-![Admin](../pictures/plugin_admin.png)
-![Config](../pictures/plugin.png)
+![Admin](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/plugin_admin.png)
+![Config](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/plugin.png)
 
 
 Then we add the configuration parameters.
