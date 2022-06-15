@@ -16,7 +16,7 @@ Error handling is very basic.
 
 ## Installation
 
-Install this plugin using pip with the following command::
+Install this plugin using pip with the following command:
 
 ```
 pip install git+https://github.com/SergeoLacruz/inventree-zebra-plugin
@@ -54,13 +54,15 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
     TITLE = "Zebra Label Printer"
 ```
 
-The name of the class can be freely chosen. You reference to it in tne entry_points section of the setup.py file.
+The name of the class can be freely chosen. You reference to it in the entry_points section of the setup.py file.
 The parameters need to be like in the example. Then there is the description block. The keywords are fixed and 
 need to be like that. The values are found in the UI as shown in the pictures below.
+In the admin view:
 
-![Admin](../pictures/plugin_admin.png)
-![Config](../pictures/plugin.png)
+![Admin](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/plugin_admin.png)
 
+On the settings page: 
+![Config](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/plugin.png)
 
 Then we add the configuration parameters.
 ```python
@@ -81,8 +83,8 @@ SETTINGS = {
 ```
 
 We need to define a dict with the name SETTINGS. Please be aware the keys need to be in all CAPITAL letters like CONNECTION.
-Simple parameters are just text strings like the port. we can set a default. The name and description shows up in the UI. 
-Instead of ta simple test we can also use choices. The first string like "local" it the key you use in the code. The second
+Simple parameters are just text strings like the port. We can set a default. The name and description shows up in the UI. 
+Instead of a simple text we can also use choices. The first string like "local" it the key you use in the code. The second
 one is the description in the UI. 
 After that we need to define a function:
 
@@ -106,12 +108,12 @@ We can put this directly into the zpl library.
 ```python
 l = zpl.Label(400,240)
 l.origin(0, 0)
-l.write_graphic( label_image, 34)
+l.write_graphic(kwargs['png_file'], 34)
 l.endorigin()
 ```
 
 400,240 is the size of the label in pixels. Our labels are 50x30mm. The Zebra printer has 203 dpi.
-34 is a scalng factor to fit the pillow data (615x378 on my case) onto the label of 50x30mm. 
+34 is a scaling factor to fit the pillow data (615x378 on my case) onto the label of 50x30mm. 
 The rest of the code is just output to the printer on different interfaces.  
 
 
