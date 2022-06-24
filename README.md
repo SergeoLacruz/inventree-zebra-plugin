@@ -104,12 +104,18 @@ For the Zebra printer we use the png_file. This is a PIL (python Pillow) object 
 We can put this directly into the zpl library. 
 
 ```python
-l = zpl.Label(400,240)
+l = zpl.Label(50,30,8)
 l.origin(0, 0)
-l.write_graphic( label_image, 34)
+l.write_graphic(label_image, 50)
 l.endorigin()
 ```
 
-400,240 is the size of the label in pixels. Our labels are 50x30mm. The Zebra printer has 203 dpi.
-34 is a scalng factor to fit the pillow data (615x378 on my case) onto the label of 50x30mm. 
-The rest of the code is just output to the printer on different interfaces.  
+50,30 is the size of the label in millimeters. The third parameter is the resolution of the printer in
+dots per mm. As the Zebra printer has 200dpi we put an eight here. write_graphic converts the pillow data
+to zpl. 50 is the with if the image in mm. 
+
+The plugin was tested with a label of 50x30 mm defined using css and html in Inventree. The DPI scaling
+is 300 and hard coded in Inventree. If you save the pillow data to a png file you get a size of 591x355
+which fits well to the data
+
+The rest of the code is just output to the printer on different interfaces. 

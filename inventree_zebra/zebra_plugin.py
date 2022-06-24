@@ -1,13 +1,13 @@
 """
 Label printing plugin for InvenTree.
-Supports direct printing of labels to networked label printers
+Supports direct printing of labels on label printers
 """
-
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 # translation
 from django.utils.translation import ugettext_lazy as _
+
+# InvenTree plugin libs
+from plugin import IntegrationPluginBase
+from plugin.mixins import LabelPrintingMixin, SettingsMixin
 
 # Zebra printer support
 import zpl
@@ -15,16 +15,11 @@ import socket
 
 from inventree_zebra.version import ZEBRA_PLUGIN_VERSION
 
-# InvenTree plugin libs
-from plugin import IntegrationPluginBase
-from plugin.mixins import LabelPrintingMixin, SettingsMixin
-
 class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase):
 
     AUTHOR = "Michael Buchmann"
     DESCRIPTION = "Label printing plugin for Zebra printers"
     VERSION = ZEBRA_PLUGIN_VERSION
-
     NAME = "Zebra"
     SLUG = "zebra"
     TITLE = "Zebra Label Printer"
@@ -56,8 +51,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
 
     def print_label(self, **kwargs):
 
-        # TODO: Improve label auto-scaling based on provided width and height information
-
         # Extract width (x) and height (y) information
         # width = kwargs['width']
         # height = kwargs['height']
@@ -69,10 +62,14 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
         Port = self.get_setting('PORT')
         label_image = kwargs['png_file']
 
+        # Uncomment this if you want to have in intermetiate png file for debugging. You will find it in src/Inventree
+#        label_image.save('label.png')
+
         # Convert image to Zebra zpl
-        l = zpl.Label(400,240)
+        
+        l = zpl.Label(50,30,8)
         l.origin(0, 0)
-        l.write_graphic( label_image, 34)
+        l.write_graphic(label_image, 50)
         l.endorigin()
 
         # Send the label to the printer
