@@ -8,7 +8,7 @@ This is a label printing plugin for [InvenTree](https://inventree.org), which pr
 It supports printing to just GK420T with one label size (50x30) so far. So it is very simple. It uses the zpl library to
 convert the png data provided by InvenTree to Zebras bitmap format. 
 
-It can output the print data either to a local printer connect to the computer via USB or to a network printer
+It can output the print data either to a local printer connected to the computer via USB or to a network printer
 with an IP address. The output can be configured in the InvenTree plugin user interface. So the source code is 
 a good example for this. 
 

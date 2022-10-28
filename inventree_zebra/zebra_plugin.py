@@ -6,7 +6,7 @@ Supports direct printing of labels on label printers
 from django.utils.translation import ugettext_lazy as _
 
 # InvenTree plugin libs
-from plugin import IntegrationPluginBase
+from plugin import InvenTreePlugin
 from plugin.mixins import LabelPrintingMixin, SettingsMixin
 
 # Zebra printer support
@@ -15,7 +15,7 @@ import socket
 
 from inventree_zebra.version import ZEBRA_PLUGIN_VERSION
 
-class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase):
+class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
     AUTHOR = "Michael Buchmann"
     DESCRIPTION = "Label printing plugin for Zebra printers"
