@@ -38,7 +38,7 @@ device libe /dev/usb/lp0. No printer spooler is involved so far.
 
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from django for multi language support.
-The import the Inventree libs and everything you need for plugin. Here we have zpl for the Zebra bitmaps and socket
+The import the InvenTree libs and everything you need for plugin. Here we have zpl for the Zebra bitmaps and socket
 for the IP connection to the printer. 
 
 The next part is this:
@@ -54,7 +54,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
     TITLE = "Zebra Label Printer"
 ```
 
-The name of the class can be freely chosen. You reference to it in tne entry_points section of the setup.py file.
+The name of the class can be freely chosen. You reference to it in the entry_points section of the setup.py file.
 The parameters need to be like in the example. Then there is the description block. The keywords are fixed and 
 need to be like that. The values are found in the UI as shown in the pictures below.
 
@@ -81,7 +81,7 @@ SETTINGS = {
 ```
 
 We need to define a dict with the name SETTINGS. Please be aware the keys need to be in all CAPITAL letters like CONNECTION.
-Simple parameters are just text strings like the port. we can set a default. The name and description shows up in the UI. 
+Simple parameters are just text strings like the port. We can set a default. The name and description shows up in the UI. 
 Instead of ta simple test we can also use choices. The first string like "local" it the key you use in the code. The second
 one is the description in the UI. 
 After that we need to define a function:
@@ -101,7 +101,15 @@ The kwargs is a dict with the following keys:
 - png_file
 
 For the Zebra printer we use the png_file. This is a PIL (python Pillow) object with the graphic of the label in PNG format. 
-We can put this directly into the zpl library. 
+The PIL object is a greyscale image. Because the printer can just print pure BW we convert this to a BW picture. 
+
+```python
+fn = lambda x : 255 if x > Threshold else 0
+label_image = label_image.convert('L').point(fn, mode='1')
+```
+
+The threshold can by modified by a plugin parameter. 200 is a good starting value.  This trick gives much better prints. 
+We can put the result this directly into the zpl library. 
 
 ```python
 l = zpl.Label(50,30,8)
@@ -114,8 +122,19 @@ l.endorigin()
 dots per mm. As the Zebra printer has 200dpi we put an eight here. write_graphic converts the pillow data
 to zpl. 50 is the with of the image in mm. 
 
-The plugin was tested with a label of 50x30 mm defined using css and html in Inventree. The DPI scaling
-is 300 and hard coded in Inventree. If you save the pillow data to a png file you get a size of 591x355
-which fits well to that data.
+The plugin was tested with a label of 50x30 mm defined using css and html in InvenTree as shown below. The DPI scaling
+can be chosen in the InvenTree settings. 400 is a good value because it is just double of the printers
+resolution. If you save the pillow data to a png file you get a size of 788x473 which fits well to that data.
+
+```
+<style>
+    @page {
+        width: 50mm;
+        height: 30mm;
+        padding: 0mm;
+        margin: 0px 0px 0px 0px;
+        background-color: white;
+    }
+```
 
 The rest of the code is just output to the printer on different interfaces. 
