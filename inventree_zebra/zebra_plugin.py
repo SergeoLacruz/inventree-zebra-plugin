@@ -41,6 +41,11 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'description': _('Network port in case of network printer'),
             'default': '9100',
         },
+        'THRESHOLD': {
+            'name': _('Threshold'),
+            'description': _('Threshold for converting grayscale to BW'),
+            'default': '200',
+        },
         'LOCAL_IF': {
             'name': _('Local Device'),
             'description': _('Interface of local printer'),
@@ -60,13 +65,16 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         Connection = self.get_setting('CONNECTION')
         Interface = self.get_setting('LOCAL_IF')
         Port = self.get_setting('PORT')
+        Threshold = int(self.get_setting('THRESHOLD'))
         label_image = kwargs['png_file']
 
+        fn = lambda x : 255 if x > Threshold else 0
+        label_image = label_image.convert('L').point(fn, mode='1')
+
         # Uncomment this if you want to have in intermetiate png file for debugging. You will find it in src/Inventree
-#        label_image.save('label.png')
+        # label_image.save('label.png')
 
         # Convert image to Zebra zpl
-        
         l = zpl.Label(50,30,8)
         l.origin(0, 0)
         l.write_graphic(label_image, 50)
@@ -79,7 +87,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
                 printer.write(l.dumpZPL())
                 printer.close()
             except:
-                print('Error: Printer not available')
                 raise ConnectionError('Error connecting to local printer')
         elif(Connection=='network'):    
             try:
@@ -89,7 +96,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
                 mysocket.send(data.encode())
                 mysocket.close ()
             except:
-                print("Error with the connection")
                 raise ConnectionError('Error connecting to network printer')
         else:
             print('Unknown Interface')
