@@ -109,7 +109,7 @@ label_image = label_image.convert('L').point(fn, mode='1')
 ```
 
 The threshold can by modified by a plugin parameter. 200 is a good starting value.  This trick gives much better prints. 
-We can put the result this directly into the zpl library. 
+We can put the result of this directly into the zpl library. 
 
 ```python
 l = zpl.Label(50,30,8)

@@ -14,7 +14,7 @@ while True:
     print(addr)
     while True:
         data = conn.recv(9100)
-#        print(data)
+        print('data received')
         print('Sending to printer...')
         printer=open('/dev/usb/lp0','w')
         printer.write(data)

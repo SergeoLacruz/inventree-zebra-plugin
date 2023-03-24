@@ -4,6 +4,8 @@ Supports direct printing of labels on label printers
 """
 # translation
 from django.utils.translation import ugettext_lazy as _
+from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator
 
 # InvenTree plugin libs
 from plugin import InvenTreePlugin
@@ -41,17 +43,29 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'description': _('Network port in case of network printer'),
             'default': '9100',
         },
-        'THRESHOLD': {
-            'name': _('Threshold'),
-            'description': _('Threshold for converting grayscale to BW'),
-            'default': '200',
-        },
         'LOCAL_IF': {
             'name': _('Local Device'),
             'description': _('Interface of local printer'),
             'default': '/dev/usb/lp0',
         },
-
+        'THRESHOLD': {
+            'name': _('Threshold'),
+            'description': _('Threshold for converting grayscale to BW'),
+            'validator': [int,MinValueValidator(0),MaxValueValidator(255)],
+            'default': 200,
+        },
+        'WIDTH': {
+            'name': _('Width'),
+            'description': _('Width of the label in mm'),
+            'validator':[int,MinValueValidator(0)],
+            'default': 50,
+        },
+        'HEIGHT': {
+            'name': _('Height'),
+            'description': _('Height of the label in mm'),
+            'validator':[int,MinValueValidator(0)],
+            'default': 30,
+        },
     }
 
     def print_label(self, **kwargs):
@@ -65,7 +79,9 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         Connection = self.get_setting('CONNECTION')
         Interface = self.get_setting('LOCAL_IF')
         Port = self.get_setting('PORT')
-        Threshold = int(self.get_setting('THRESHOLD'))
+        Threshold = self.get_setting('THRESHOLD')
+        Width = self.get_setting('WIDTH')
+        Height = self.get_setting('HEIGHT')
         label_image = kwargs['png_file']
 
         fn = lambda x : 255 if x > Threshold else 0
@@ -75,9 +91,9 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # label_image.save('label.png')
 
         # Convert image to Zebra zpl
-        l = zpl.Label(50,30,8)
+        l = zpl.Label(Width,Height,8)
         l.origin(0, 0)
-        l.write_graphic(label_image, 50)
+        l.write_graphic(label_image, Width)
         l.endorigin()
 
         # Send the label to the printer
