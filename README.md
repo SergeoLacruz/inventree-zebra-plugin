@@ -34,7 +34,16 @@ In case you use an IP printer set the port number here. The default port number 
 
 ### Local Device
 In case of a local printer set the device here. The plugin actually puts the data directly to the
-device libe /dev/usb/lp0. No printer spooler is involved so far. 
+device /dev/usb/lp0. No printer spooler is involved so far. 
+
+### Threshold 
+The image from pillow comes in greyscale. The plugin converts it ti pure BW because this gives a much 
+better print result. The threshold between black and white can be adjusted here.
+
+### Width, Height
+These are values for the label width and height in mm. Please be aware that this is the size of the 
+paper in the printer. The definition of the label in the css file has to fit to these values. 
+There is no automatic scaling. 
 
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from django for multi language support.
@@ -112,17 +121,17 @@ The threshold can by modified by a plugin parameter. 200 is a good starting valu
 We can put the result of this directly into the zpl library. 
 
 ```python
-l = zpl.Label(50,30,8)
+l = zpl.Label(Width,Height,8)
 l.origin(0, 0)
-l.write_graphic(label_image, 50)
+l.write_graphic(label_image, Width)
 l.endorigin()
 ```
 
-50,30 is the size of the label in millimeters. The third parameter is the resolution of the printer in
+Width and Height define is the size of the label in millimeters as described above. The third parameter is the resolution of the printer in
 dots per mm. As the Zebra printer has 200dpi we put an eight here. write_graphic converts the pillow data
-to zpl. 50 is the with of the image in mm. 
+to zpl. 
 
-The plugin was tested with a label of 50x30 mm defined using css and html in InvenTree as shown below. The DPI scaling
+The plugin was tested with a label of 50x30 and 100x50 mm defined using css and html in InvenTree as shown below. The DPI scaling
 can be chosen in the InvenTree settings. 400 is a good value because it is just double of the printers
 resolution. If you save the pillow data to a png file you get a size of 788x473 which fits well to that data.
 
