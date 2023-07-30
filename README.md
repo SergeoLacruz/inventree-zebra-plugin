@@ -46,7 +46,7 @@ paper in the printer. The definition of the label in the css file has to fit to 
 There is no automatic scaling. 
 
 ## How it works
-First import all the stuff you need. Here we use the translation mechanism from django for multi language support.
+First import all the stuff you need. Here we use the translation mechanism from Django for multi language support.
 The import the InvenTree libs and everything you need for plugin. Here we have zpl for the Zebra bitmaps and socket
 for the IP connection to the printer. 
 
@@ -91,7 +91,7 @@ SETTINGS = {
 
 We need to define a dict with the name SETTINGS. Please be aware the keys need to be in all CAPITAL letters like CONNECTION.
 Simple parameters are just text strings like the port. We can set a default. The name and description shows up in the UI. 
-Instead of ta simple test we can also use choices. The first string like "local" it the key you use in the code. The second
+Instead of a simple text we can also use choices. The first string like "local" it the key you use in the code. The second
 one is the description in the UI. 
 After that we need to define a function:
 
@@ -105,10 +105,13 @@ The kwargs is a dict with the following keys:
 - user
 - filename
 - label_instance
+- item_instance
 - width
 - height
 - png_file
 
+the item_instance is the part to be printed. This allows direct access to all part data. The arguments width and height 
+come from the settings of the label in the admin interface. NOT from the html template. 
 For the Zebra printer we use the png_file. This is a PIL (python Pillow) object with the graphic of the label in PNG format. 
 The PIL object is a greyscale image. Because the printer can just print pure BW we convert this to a BW picture. 
 
@@ -146,4 +149,4 @@ resolution. If you save the pillow data to a png file you get a size of 788x473 
     }
 ```
 
-The rest of the code is just output to the printer on different interfaces. 
+The rest of the code is just output to the printer on different interfaces.

@@ -16,9 +16,9 @@ while True:
         data = conn.recv(9100)
         print('data received')
         print('Sending to printer...')
-        printer=open('/dev/usb/lp0','w')
-        printer.write(data)
-        printer.close()
+#        printer=open('/dev/usb/lp0','w')
+#        printer.write(data)
+#        printer.close()
         if not data:
             break
 
