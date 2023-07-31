@@ -54,6 +54,12 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'validator': [int,MinValueValidator(0),MaxValueValidator(255)],
             'default': 200,
         },
+        'DARKNESS': {
+            'name': _('Darkness'),
+            'description': _('Darkness of the print out. 0-30'),
+            'validator': [int,MinValueValidator(0),MaxValueValidator(30)],
+            'default': 20,
+        },
         'WIDTH': {
             'name': _('Width'),
             'description': _('Width of the label in mm'),
@@ -82,6 +88,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         Threshold = self.get_setting('THRESHOLD')
         Width = self.get_setting('WIDTH')
         Height = self.get_setting('HEIGHT')
+        Darkness = self.get_setting('DARKNESS')
         label_image = kwargs['png_file']
 
         fn = lambda x : 255 if x > Threshold else 0
@@ -92,6 +99,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
         # Convert image to Zebra zpl
         l = zpl.Label(Width,Height,8)
+        l.set_darkness(Darkness)
         l.origin(0, 0)
         l.write_graphic(label_image, Width)
         l.endorigin()

@@ -40,6 +40,11 @@ device /dev/usb/lp0. No printer spooler is involved so far.
 The image from pillow comes in greyscale. The plugin converts it ti pure BW because this gives a much 
 better print result. The threshold between black and white can be adjusted here.
 
+### Darkness 
+This is a value that influences the darkness of the print. Allowed values are 0 (white) to 30 (black).
+It is directly converted to a SD command in ZPL. If your black areas tend to blur out reduce the 
+darkness.
+
 ### Width, Height
 These are values for the label width and height in mm. Please be aware that this is the size of the 
 paper in the printer. The definition of the label in the css file has to fit to these values. 
@@ -47,7 +52,7 @@ There is no automatic scaling.
 
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from Django for multi language support.
-The import the InvenTree libs and everything you need for plugin. Here we have zpl for the Zebra bitmaps and socket
+The import the InvenTree libs and everything you need for plugin. Here we have ZPL for the Zebra bitmaps and socket
 for the IP connection to the printer. 
 
 The next part is this:
@@ -121,7 +126,7 @@ label_image = label_image.convert('L').point(fn, mode='1')
 ```
 
 The threshold can by modified by a plugin parameter. 200 is a good starting value.  This trick gives much better prints. 
-We can put the result of this directly into the zpl library. 
+We can put the result of this directly into the ZPL library. 
 
 ```python
 l = zpl.Label(Width,Height,8)
