@@ -44,6 +44,10 @@ This is a value that influences the darkness of the print. Allowed values are 0 
 It is directly converted to a SD command in ZPL. If your black areas tend to blur out reduce the 
 darkness.
 
+### X-Position 
+This sets the position of the label in x-axis in mm. If your printer is 100mm wide and your label
+is 50mm wide set X-Position to 25.
+
 ### Width, Height
 These are values for the label width and height in mm. Please be aware that this is the size of the 
 paper in the printer. The definition of the label in the css file has to fit to these values. 
