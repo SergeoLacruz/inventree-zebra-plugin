@@ -4,7 +4,7 @@
 # inventree-zebra-plugin
 
 This is a label printing plugin for [InvenTree](https://inventree.org), which provides support for Zebra Label printers .
-It supports printing to just GK420T with one label size (50x30) so far. So it is very simple. It uses the zpl library to
+It was only tested with  GK420T but should work for other ZPL printers too. It uses the ZPL library to
 convert the png data provided by InvenTree to Zebras bitmap format. 
 
 It can output the print data either to a local printer connected to the computer via USB or to a network printer
@@ -140,7 +140,7 @@ l.endorigin()
 
 Width and Height define is the size of the label in millimeters as described above. The third parameter is the resolution of the printer in
 dots per mm. As the Zebra printer has 200dpi we put an eight here. write_graphic converts the pillow data
-to zpl. 
+to ZPL. 
 
 The plugin was tested with a label of 50x30 and 100x50 mm defined using css and html in InvenTree as shown below. The DPI scaling
 can be chosen in the InvenTree settings. 400 is a good value because it is just double of the printers
