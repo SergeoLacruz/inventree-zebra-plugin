@@ -164,7 +164,7 @@ in HTML, converted to a pixel graphic and printed. The advantage is independency
 models and systems. Disadvantage is larger data and quality problems with darkness and scaling.
 Let's have a look at the following printout:
 
-![QRcodes](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/qr.png width=500)
+![QRcodes](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/qr.png | width=500)
 
 Both codes have been printed with the same printer on the same reel. The left one is 
 hardly readable using my mobile. The right one reads easily even as it is smaller. 
