@@ -164,12 +164,12 @@ in HTML, converted to a pixel graphic and printed. The advantage is independency
 models and systems. Disadvantage is larger data and quality problems with darkness and scaling.
 Let's have a look at the following printout:
 
-![QRcodes](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/qr.png)
+![QRcodes](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/qr.png width=500)
 
 Both codes have been printed with the same printer on the same reel. The left one is 
 hardly readable using my mobile. The right one reads easily even as it is smaller. 
 
-###Secret 1, Scale
+### Secret 1, Scale
 The printer resolution is 8 dots per mm resulting in a dot size of 0.125mm. The QR code pixel 
 and the printer pixel size should be integrally divisible. The code in the picture has 21
 pixels plus one in the frame, so 23 pixel. The frame is set in the HTML description. 
@@ -183,7 +183,7 @@ scaling takes place and the result might be worse. If you like a larger printout
 dots per pixel. From a certain size upwards the value does not matter any more because the code
 gets large enough to be readable in any quality. 
 
-###Secret 2: Darkness
+### Secret 2: Darkness
 Zebra printers allow to set the darkness of the print in values between 0 (white) and 30 (max)
 The left code was printed with a value 0r 30. The black dots tend to blur out a bit resulting
 in smaller white areas. The right code was printed with a value of 25 resulting in larger white
