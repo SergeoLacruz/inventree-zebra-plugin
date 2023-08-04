@@ -5,7 +5,7 @@
 
 This is a label printing plugin for [InvenTree](https://inventree.org), which provides support for Zebra Label printers .
 It was only tested with  GK420T but should work for other ZPL printers too. It uses the ZPL library to
-convert the png data provided by InvenTree to Zebras bitmap format. 
+convert the png data provided by InvenTree to Zebra's bitmap format. 
 
 It can output the print data either to a local printer connected to the computer via USB or to a network printer
 with an IP address. The output can be configured in the InvenTree plugin user interface. So the source code is 
@@ -142,9 +142,8 @@ Width and Height define is the size of the label in millimeters as described abo
 dots per mm. As the Zebra printer has 200dpi we put an eight here. write_graphic converts the pillow data
 to ZPL. 
 
-The plugin was tested with a label of 50x30 and 100x50 mm defined using css and html in InvenTree as shown below. The DPI scaling
-can be chosen in the InvenTree settings. 400 is a good value because it is just double of the printers
-resolution. If you save the pillow data to a png file you get a size of 788x473 which fits well to that data.
+The plugin was tested with a labels of various sizes as defined using css and html in InvenTree as shown below. The DPI scaling
+can be chosen in the InvenTree settings. 800 is a good value because it gives good quality.
 
 ```
 <style>
@@ -158,3 +157,37 @@ resolution. If you save the pillow data to a png file you get a size of 788x473 
 ```
 
 The rest of the code is just output to the printer on different interfaces.
+
+## Quality matters 
+The InvenTree printer system uses a graphical representation of the label. The label is described
+in HTML, converted to a pixel graphic and printed. The advantage is independency  printer
+models and systems. Disadvantage is larger data and quality problems with darkness and scaling.
+Let's have a look at the following printout:
+
+![QRcodes](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/qr.png)
+
+Both codes have been printed with the same printer on the same reel. The left one is 
+hardly readable using my mobile. The right one reads easily even as it is smaller. 
+
+###Secret 1, Scale
+The printer resolution is 8 dots per mm resulting in a dot size of 0.125mm. The QR code pixel 
+and the printer pixel size should be integrally divisible. The code in the picture has 21
+pixels plus one in the frame, so 23 pixel. The frame is set in the HTML description. 
+
+```
+{% qrcode qr_data border=1 %}
+```
+
+I selected two dots per pixel. So 23 * 2 * 0.125 = 6.125mm. If the size is something different
+scaling takes place and the result might be worse. If you like a larger printout select more 
+dots per pixel. From a certain size upwards the value does not matter any more because the code
+gets large enough to be readable in any quality. 
+
+###Secret 2: Darkness
+Zebra printers allow to set the darkness of the print in values between 0 (white) and 30 (max)
+The left code was printed with a value 0r 30. The black dots tend to blur out a bit resulting
+in smaller white areas. The right code was printed with a value of 25 resulting in larger white
+pixels.  The darkness values are just examples. Your values will differ based on printer model,
+media type and printer age. The printer head tends to wear out and the darkness value might
+need an adjustment from time to time. 
+
