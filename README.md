@@ -48,10 +48,24 @@ darkness.
 This sets the position of the label in x-axis in mm. If your printer is 100mm wide and your label
 is 50mm wide set X-Position to 25.
 
-### Width, Height
-These are values for the label width and height in mm. Please be aware that this is the size of the 
-paper in the printer. The definition of the label in the css file has to fit to these values. 
-There is no automatic scaling. 
+## Template
+The label needs a template described in html and css. The template should start with a page definition
+that defines the label size as shown below: 
+
+```
+    @page {
+        {% localize off %}
+        height: {{ height }}mm;
+        width: {{ width }}mm;
+        {% endlocalize %}
+        padding: 0mm;
+        margin: 0px 0px 0px 0px;
+        background-color: white;
+    }
+```
+
+The height and width parameters are defined in the InvenTree admin panel in the label section. These values
+have to fit the label size that is in the printer. See the example templates for details of template definition.
 
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from Django for multi language support.
@@ -139,22 +153,10 @@ l.endorigin()
 ```
 
 Width and Height define is the size of the label in millimeters as described above. The third parameter is the resolution of the printer in
-dots per mm. As the Zebra printer has 200dpi we put an eight here. write_graphic converts the pillow data
-to ZPL. 
+dots per mm. This might need a change for other printer models. write_graphic converts the pillow data to ZPL. 
 
-The plugin was tested with a labels of various sizes as defined using css and html in InvenTree as shown below. The DPI scaling
-can be chosen in the InvenTree settings. 800 is a good value because it gives good quality.
-
-```
-<style>
-    @page {
-        width: 50mm;
-        height: 30mm;
-        padding: 0mm;
-        margin: 0px 0px 0px 0px;
-        background-color: white;
-    }
-```
+The plugin was tested with a labels of various sizes defined using css and html. The DPI scaling
+can be chosen in the InvenTree settings. 800 is a good value because it gives high quality.
 
 The rest of the code is just output to the printer on different interfaces.
 

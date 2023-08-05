@@ -11,6 +11,7 @@ from django.core.validators import MaxValueValidator
 from plugin import InvenTreePlugin
 from plugin.mixins import LabelPrintingMixin, SettingsMixin
 
+
 # Zebra printer support
 import zpl
 import socket
@@ -50,7 +51,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         },
         'THRESHOLD': {
             'name': _('Threshold'),
-            'description': _('Threshold for converting grayscale to BW'),
+            'description': _('Threshold for converting grayscale to BW (0-255)'),
             'validator': [int,MinValueValidator(0),MaxValueValidator(255)],
             'default': 200,
         },
@@ -66,25 +67,9 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'validator': [int,MinValueValidator(0),MaxValueValidator(100)],
             'default': 25,
         },
-        'WIDTH': {
-            'name': _('Width'),
-            'description': _('Width of the label in mm'),
-            'validator':[int,MinValueValidator(0)],
-            'default': 50,
-        },
-        'HEIGHT': {
-            'name': _('Height'),
-            'description': _('Height of the label in mm'),
-            'validator':[int,MinValueValidator(0)],
-            'default': 30,
-        },
     }
 
     def print_label(self, **kwargs):
-
-        # Extract width (x) and height (y) information
-        # width = kwargs['width']
-        # height = kwargs['height']
 
         # Read settings
         IPAddress = self.get_setting('IP_ADDRESS')
@@ -92,11 +77,13 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         Interface = self.get_setting('LOCAL_IF')
         Port = self.get_setting('PORT')
         Threshold = self.get_setting('THRESHOLD')
-        Width = self.get_setting('WIDTH')
-        Height = self.get_setting('HEIGHT')
         Darkness = self.get_setting('DARKNESS')
         xPos = self.get_setting('XPOS')
         label_image = kwargs['png_file']
+
+        # Extract width (x) and height (y) information
+        Width = kwargs['width']
+        Height = kwargs['height']
 
         fn = lambda x : 255 if x > Threshold else 0
         label_image = label_image.convert('L').point(fn, mode='1')
