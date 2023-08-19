@@ -196,5 +196,5 @@ need an adjustment from time to time.
 ### Alternative
 You can also bypass the InvenTree template and printing system and directly create ZPL from 
 the parts data. The printer knows best how to render the label and the print quality is best.
-If you are interested in this way have a look at the [inventree-zpl-plugin] (https://github.com/yellowcrescent/inventree-zpl-plugin) 
+If you are interested in this way have a look at the [inventree-zpl-plugin](https://github.com/yellowcrescent/inventree-zpl-plugin) 
 that does exactly that. 
