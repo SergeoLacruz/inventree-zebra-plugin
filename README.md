@@ -65,7 +65,7 @@ that defines the label size as shown below:
 ```
 
 The height and width parameters are defined in the InvenTree admin panel in the label section. These values
-have to fit the label size that is in the printer. See the example templates for details of template definition.
+have to fit the label size that is in the printer. See the example templates for details on template definition.
 
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from Django for multi language support.
@@ -193,3 +193,8 @@ pixels.  The darkness values are just examples. Your values will differ based on
 media type and printer age. The printer head tends to wear out and the darkness value might
 need an adjustment from time to time. 
 
+### Alternative
+You can also bypass the InvenTree template and printing system and directly create ZPL from 
+the parts data. The printer knows best how to render the label and the print quality is best.
+If you are interested in this way have a look at the [inventree-zpl-plugin] (https://github.com/yellowcrescent/inventree-zpl-plugin) 
+that does exactly that. 
