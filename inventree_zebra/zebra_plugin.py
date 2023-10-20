@@ -11,7 +11,6 @@ from django.core.validators import MaxValueValidator
 from plugin import InvenTreePlugin
 from plugin.mixins import LabelPrintingMixin, SettingsMixin
 
-
 # Zebra printer support
 import zpl
 import socket
@@ -61,11 +60,16 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'validator': [int,MinValueValidator(0),MaxValueValidator(30)],
             'default': 20,
         },
-        'XPOS': {
-            'name': _('X-Position'),
-            'description': _('The X position of the label in mm in case the printer is wider than the label'),
-            'validator': [int,MinValueValidator(0),MaxValueValidator(100)],
-            'default': 25,
+        'DPMM': {
+            'name': _('Dots per mm'),
+            'description': _('The resolution of the printer'),
+            'choices': [(8,'8 dots per mm'),(12,'12 dots per mm'),(24,'24 dots per mm')],
+            'default': 8,
+        },
+        'PRINTER_INIT': {
+            'name': _('Printer Init'),
+            'description': _('Additional ZPL commands sent to the printer. Use carefully!'),
+            'default': '^PMN^PON',
         },
     }
 
@@ -75,28 +79,37 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         IPAddress = self.get_setting('IP_ADDRESS')
         Connection = self.get_setting('CONNECTION')
         Interface = self.get_setting('LOCAL_IF')
-        Port = self.get_setting('PORT')
+        Port = int(self.get_setting('PORT'))
         Threshold = self.get_setting('THRESHOLD')
         Darkness = self.get_setting('DARKNESS')
-        xPos = self.get_setting('XPOS')
+        dpmm = int(self.get_setting('DPMM'))
+        PrinterInit = self.get_setting('PRNITER_INIT')
         label_image = kwargs['png_file']
 
-        # Extract width (x) and height (y) information
+        # Extract width (x) and height (y) information. 
         Width = kwargs['width']
         Height = kwargs['height']
 
+        # Set the darkness
         fn = lambda x : 255 if x > Threshold else 0
         label_image = label_image.convert('L').point(fn, mode='1')
 
-        # Uncomment this if you want to have in intermetiate png file for debugging. You will find it in src/Inventree
-        # label_image.save('label.png')
+        # Uncomment this if you need the intermetiate png file for debugging.
+        # label_image.save('/home/user/label.png')
 
         # Convert image to Zebra zpl
-        l = zpl.Label(Width,Height,8)
+        l = zpl.Label(Height,Width,dpmm)
         l.set_darkness(Darkness)
-        l.origin(xPos, 0)
+        l.labelhome(0,0)
+        l.zpl_raw(PrinterInit)
+        l.origin(0,0)
         l.write_graphic(label_image, Width)
         l.endorigin()
+
+        # Uncomment this if you need the intermetiate zpl file for debugging.
+        # datafile=open('/home/user/label.txt','w')
+        # datafile.write(l.dumpZPL())
+        # datafile.close()
 
         # Send the label to the printer
         if(Connection=='local'):
@@ -109,7 +122,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         elif(Connection=='network'):    
             try:
                 mysocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-                mysocket.connect((IPAddress, int(Port)))
+                mysocket.connect((IPAddress, Port))
                 data=l.dumpZPL()
                 mysocket.send(data.encode())
                 mysocket.close ()
