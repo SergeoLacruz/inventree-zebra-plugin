@@ -8,8 +8,7 @@ It was only tested with  GK420T but should work for other ZPL printers too. It u
 convert the png data provided by InvenTree to Zebra's bitmap format. 
 
 It can output the print data either to a local printer connected to the computer via USB or to a network printer
-with an IP address. The output can be configured in the InvenTree plugin user interface. So the source code is 
-a good example for this. 
+with an IP address. The output can be configured in the InvenTree plugin user interface.  
 
 Error handling is very basic. 
 
@@ -44,11 +43,15 @@ This is a value that influences the darkness of the print. Allowed values are 0 
 It is directly converted to a SD command in ZPL. If your black areas tend to blur out reduce the 
 darkness.
 
-### X-Position 
-This sets the position of the label in x-axis in mm. If your printer is 100mm wide and your label
-is 50mm wide set X-Position to 25.
+### Dots per mm 
+This sets the resolution of the printer. You can chooswe between 8, 12 and 24 dpmm depending on your printer model.
 
-## Template
+### Printer init 
+This string added to the printer output. It can be used to set special commands e.g. label rotation, mirror or white on black. Please refer to the ZPL manual for more information.
+
+Zebra printers store settings after printing. So if a rotated label has been printed all following label will be rotated unless you change it. The default ^PMN^PON sets the label to no rotation, no mirror just in case the printer has stored another setting. 
+
+## Label Template
 The label needs a template described in html and css. The template should start with a page definition
 that defines the label size as shown below: 
 
@@ -132,7 +135,7 @@ The kwargs is a dict with the following keys:
 - height
 - png_file
 
-the item_instance is the part to be printed. This allows direct access to all part data. The arguments width and height 
+The item_instance is the part to be printed. This allows direct access to all part data. The arguments width and height 
 come from the settings of the label in the admin interface. NOT from the html template. 
 For the Zebra printer we use the png_file. This is a PIL (python Pillow) object with the graphic of the label in PNG format. 
 The PIL object is a greyscale image. Because the printer can just print pure BW we convert this to a BW picture. 
@@ -146,14 +149,16 @@ The threshold can by modified by a plugin parameter. 200 is a good starting valu
 We can put the result of this directly into the ZPL library. 
 
 ```python
-l = zpl.Label(Width,Height,8)
+l = zpl.Label(Height, Width, dpmm)
 l.origin(0, 0)
+...
 l.write_graphic(label_image, Width)
 l.endorigin()
 ```
 
-Width and Height define is the size of the label in millimeters as described above. The third parameter is the resolution of the printer in
-dots per mm. This might need a change for other printer models. write_graphic converts the pillow data to ZPL. 
+Width and Height define is the size of the label in millimeters as described above.
+The third parameter is the resolution of the printer in dots per mm. 
+write_graphic converts the pillow data to ZPL. 
 
 The plugin was tested with a labels of various sizes defined using css and html. The DPI scaling
 can be chosen in the InvenTree settings. 800 is a good value because it gives high quality.
