@@ -69,7 +69,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         'PRINTER_INIT': {
             'name': _('Printer Init'),
             'description': _('Additional ZPL commands sent to the printer. Use carefully!'),
-            'default': '^PMN^PON',
+            'default': '~TA000~JSN^LT0^MNW^MTT^PMN^PON^PR2,2^LRN',
         },
     }
 
@@ -83,7 +83,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         Threshold = self.get_setting('THRESHOLD')
         Darkness = self.get_setting('DARKNESS')
         dpmm = int(self.get_setting('DPMM'))
-        PrinterInit = self.get_setting('PRNITER_INIT')
+        PrinterInit = self.get_setting('PRINTER_INIT')
         label_image = kwargs['png_file']
 
         # Extract width (x) and height (y) information. 
@@ -114,11 +114,12 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # Send the label to the printer
         if(Connection=='local'):
             try:
+                pass
                 printer=open(Interface,'w')
                 printer.write(l.dumpZPL())
                 printer.close()
-            except:
-                raise ConnectionError('Error connecting to local printer')
+            except Exception as error:
+                raise ConnectionError('Error connecting to local printer: ' + str(error))
         elif(Connection=='network'):    
             try:
                 mysocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -126,7 +127,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
                 data=l.dumpZPL()
                 mysocket.send(data.encode())
                 mysocket.close ()
-            except:
-                raise ConnectionError('Error connecting to network printer')
+            except Exception as error:
+                raise ConnectionError('Error connecting to network printer: ' + str(error))
         else:
             print('Unknown Interface')
