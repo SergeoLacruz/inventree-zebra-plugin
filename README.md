@@ -44,12 +44,20 @@ It is directly converted to a SD command in ZPL. If your black areas tend to blu
 darkness.
 
 ### Dots per mm 
-This sets the resolution of the printer. You can chooswe between 8, 12 and 24 dpmm depending on your printer model.
+This sets the resolution of the printer. You can choose between 8, 12 and 24
+dpmm depending on your printer model.
 
 ### Printer init 
-This string added to the printer output. It can be used to set special commands e.g. label rotation, mirror or white on black. Please refer to the ZPL manual for more information.
+This string added to the printer output. It can be used to set special commands
+e.g. label rotation, mirror or white on black. Please refer to the ZPL manual
+for more information.
 
-Zebra printers store settings after printing. So if a rotated label has been printed all following label will be rotated unless you change it. The default ^PMN^PON sets the label to no rotation, no mirror just in case the printer has stored another setting. 
+Zebra printers store settings after printing. So if a rotated label has been
+printed all following label will be rotated unless you change it. The default
+sets the printer to settings that have been useful for me. You might want to
+change it according to your requirements. Please keep in mind that this string
+is passed directly to the printer without any checks. So be careful when editing
+here.
 
 ## Label Template
 The label needs a template described in html and css. The template should start with a page definition
@@ -167,7 +175,7 @@ The rest of the code is just output to the printer on different interfaces.
 
 ## Quality matters 
 The InvenTree printer system uses a graphical representation of the label. The label is described
-in HTML, converted to a pixel graphic and printed. The advantage is independency  printer
+in HTML, converted to a pixel graphic and printed. The advantage is independency from  printer
 models and systems. Disadvantage is larger data and quality problems with darkness and scaling.
 Let's have a look at the following printout:
 
