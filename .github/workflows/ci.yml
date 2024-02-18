@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  release:
+    #    types: [published]
+
+jobs:
+  style-python:
+    name: "💄 Style: python"
+      #    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install style check dependencies
+        run: |
+          pip install flake8==7.0.0
+          pip install pep8-naming==0.13.3
+
+      - name: Check style
+        run: |
+          flake8 .
+
+          #  publish:
+          #    if: github.event_name == 'release' && github.event.action == 'published'
+          #    needs: [style-python]
+          #    name: 📦 Publish to PyPi
+          #    runs-on: ubuntu-latest
+          #    environment:
+          #      name: release
+          #      url: https://pypi.org/p/inventree-zebra-plugin
+          #    permissions:
+          #      id-token: write
+          #
+          #   steps:
+          #      - name: Checkout
+          #        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # pin@v3.5.3
+          #
+          #      - name: Setup python
+          #        uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # pin@v4.7.0
+          #        with:
+          #          python-version: "3.10"
+          #
+          #      - name: Install build dependencies
+          #        run: pip install --upgrade wheel setuptools twine build
+          #
+          #      - name: Build pip package
+          #        run: python3 -m build
+          #
+          #      - name: Publish package to PyPI
+          #        uses: pypa/gh-action-pypi-publish@f8c70e705ffc13c3b4d1221169b84f12a75d6ca8 # pin@v1.8.8
