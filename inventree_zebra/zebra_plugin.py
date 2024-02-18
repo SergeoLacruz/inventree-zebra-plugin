@@ -17,8 +17,8 @@ import socket
 
 from inventree_zebra.version import ZEBRA_PLUGIN_VERSION
 
-class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
+class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
     AUTHOR = "Michael Buchmann"
     DESCRIPTION = "Label printing plugin for Zebra printers"
@@ -31,7 +31,8 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         'CONNECTION': {
             'name': _('Printer Interface'),
             'description': _('Select local or network printer'),
-            'choices': [('local', 'Local printer e.g. USB'), ('network', 'Network printer with IP address')],
+            'choices': [('local', 'Local printer e.g. USB'), 
+                        ('network', 'Network printer with IP address')],
             'default': 'local',
         },
         'IP_ADDRESS': {
@@ -64,7 +65,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         'DPMM': {
             'name': _('Dots per mm'),
             'description': _('The resolution of the printer'),
-            'choices': [(8,'8 dots per mm'),(12,'12 dots per mm'),(24,'24 dots per mm')],
+            'choices': [(8,'8 dots per mm'), (12, '12 dots per mm'), (24, '24 dots per mm')],
             'default': 8,
         },
         'PRINTER_INIT': {
@@ -99,25 +100,25 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # label_image.save('/home/user/label.png')
 
         # Convert image to Zebra zpl
-        l = zpl.Label(height, width, dpmm)
-        l.set_darkness(darkness)
-        l.labelhome(0,0)
-        l.zpl_raw(printer_init)
-        l.origin(0,0)
-        l.write_graphic(label_image, width)
-        l.endorigin()
+        li = zpl.Label(height, width, dpmm)
+        li.set_darkness(darkness)
+        li.labelhome(0, 0)
+        li.zpl_raw(printer_init)
+        li.origin(0, 0)
+        li.write_graphic(label_image, width)
+        li.endorigin()
 
         # Uncomment this if you need the intermetiate zpl file for debugging.
         # datafile=open('/home/user/label.txt','w')
-        # datafile.write(l.dumpZPL())
+        # datafile.write(li.dumpZPL())
         # datafile.close()
 
         # Send the label to the printer
-        if(connection == 'local'):
+        if (connection == 'local'):
             try:
                 pass
-                printer=open(interface,'w')
-                printer.write(l.dumpZPL())
+                printer = open(interface, 'w')
+                printer.write(li.dumpZPL())
                 printer.close()
             except Exception as error:
                 raise ConnectionError('Error connecting to local printer: ' + str(error))
@@ -125,7 +126,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             try:
                 mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 mysocket.connect((ip_address, port))
-                data = l.dumpZPL()
+                data = li.dumpZPL()
                 mysocket.send(data.encode())
                 mysocket.close()
             except Exception as error:

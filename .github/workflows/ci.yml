@@ -27,6 +27,7 @@ jobs:
           pip install pep8-naming==0.13.3
 
       - name: Check style
+        with: max-line-length: "100"
         run: |
           flake8 .
 

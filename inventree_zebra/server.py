@@ -1,6 +1,6 @@
 # server.py
-# simple listener to an IP port to test the zebra plugin with IP conection in case you
-# do not have a printer with IP interface.
+# simple listener to an IP port to test the zebra plugin with IP conection
+# in case you do not have a printer with IP interface.
 
 import socket
 
