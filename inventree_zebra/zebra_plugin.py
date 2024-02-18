@@ -19,6 +19,7 @@ from inventree_zebra.version import ZEBRA_PLUGIN_VERSION
 
 class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
+
     AUTHOR = "Michael Buchmann"
     DESCRIPTION = "Label printing plugin for Zebra printers"
     VERSION = ZEBRA_PLUGIN_VERSION
@@ -30,7 +31,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         'CONNECTION': {
             'name': _('Printer Interface'),
             'description': _('Select local or network printer'),
-            'choices': [('local','Local printer e.g. USB'),('network','Network printer with IP address')],
+            'choices': [('local', 'Local printer e.g. USB'), ('network', 'Network printer with IP address')],
             'default': 'local',
         },
         'IP_ADDRESS': {
@@ -51,13 +52,13 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         'THRESHOLD': {
             'name': _('Threshold'),
             'description': _('Threshold for converting grayscale to BW (0-255)'),
-            'validator': [int,MinValueValidator(0),MaxValueValidator(255)],
+            'validator': [int, MinValueValidator(0), MaxValueValidator(255)],
             'default': 200,
         },
         'DARKNESS': {
             'name': _('Darkness'),
             'description': _('Darkness of the print out. 0-30'),
-            'validator': [int,MinValueValidator(0),MaxValueValidator(30)],
+            'validator': [int, MinValueValidator(0), MaxValueValidator(30)],
             'default': 20,
         },
         'DPMM': {
@@ -76,34 +77,34 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
     def print_label(self, **kwargs):
 
         # Read settings
-        IPAddress = self.get_setting('IP_ADDRESS')
-        Connection = self.get_setting('CONNECTION')
-        Interface = self.get_setting('LOCAL_IF')
-        Port = int(self.get_setting('PORT'))
-        Threshold = self.get_setting('THRESHOLD')
-        Darkness = self.get_setting('DARKNESS')
+        ip_address = self.get_setting('IP_ADDRESS')
+        connection = self.get_setting('CONNECTION')
+        interface = self.get_setting('LOCAL_IF')
+        port = int(self.get_setting('PORT'))
+        threshold = self.get_setting('THRESHOLD')
+        darkness = self.get_setting('DARKNESS')
         dpmm = int(self.get_setting('DPMM'))
-        PrinterInit = self.get_setting('PRINTER_INIT')
+        printer_init = self.get_setting('PRINTER_INIT')
         label_image = kwargs['png_file']
 
-        # Extract width (x) and height (y) information. 
-        Width = kwargs['width']
-        Height = kwargs['height']
+        # Extract width (x) and height (y) information.
+        width = kwargs['width']
+        height = kwargs['height']
 
         # Set the darkness
-        fn = lambda x : 255 if x > Threshold else 0
+        fn = lambda x: 255 if x > threshold else 0
         label_image = label_image.convert('L').point(fn, mode='1')
 
         # Uncomment this if you need the intermetiate png file for debugging.
         # label_image.save('/home/user/label.png')
 
         # Convert image to Zebra zpl
-        l = zpl.Label(Height,Width,dpmm)
-        l.set_darkness(Darkness)
+        l = zpl.Label(height, width, dpmm)
+        l.set_darkness(darkness)
         l.labelhome(0,0)
-        l.zpl_raw(PrinterInit)
+        l.zpl_raw(printer_init)
         l.origin(0,0)
-        l.write_graphic(label_image, Width)
+        l.write_graphic(label_image, width)
         l.endorigin()
 
         # Uncomment this if you need the intermetiate zpl file for debugging.
@@ -112,21 +113,21 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # datafile.close()
 
         # Send the label to the printer
-        if(Connection=='local'):
+        if(connection == 'local'):
             try:
                 pass
-                printer=open(Interface,'w')
+                printer=open(interface,'w')
                 printer.write(l.dumpZPL())
                 printer.close()
             except Exception as error:
                 raise ConnectionError('Error connecting to local printer: ' + str(error))
-        elif(Connection=='network'):    
+        elif(connection=='network'):
             try:
-                mysocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-                mysocket.connect((IPAddress, Port))
-                data=l.dumpZPL()
+                mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                mysocket.connect((ip_address, port))
+                data = l.dumpZPL()
                 mysocket.send(data.encode())
-                mysocket.close ()
+                mysocket.close()
             except Exception as error:
                 raise ConnectionError('Error connecting to network printer: ' + str(error))
         else:

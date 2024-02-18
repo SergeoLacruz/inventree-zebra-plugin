@@ -1,12 +1,12 @@
 # server.py
-# simple listener to an IP port to test the zebra plugin with IP conection in case you do not have a
-# printer with IP interface.
+# simple listener to an IP port to test the zebra plugin with IP conection in case you
+# do not have a printer with IP interface.
 
 import socket
 
-PORT = 9100  # Port to listen on 
+PORT = 9100  # Port to listen on
 
-s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', PORT))
 s.listen(1)
 while True:
@@ -21,4 +21,3 @@ while True:
 #        printer.close()
         if not data:
             break
-
