@@ -1,5 +1,6 @@
 """
 Label printing plugin for InvenTree.
+
 Supports direct printing of labels on label printers
 """
 # translation
@@ -31,7 +32,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         'CONNECTION': {
             'name': _('Printer Interface'),
             'description': _('Select local or network printer'),
-            'choices': [('local', 'Local printer e.g. USB'), 
+            'choices': [('local', 'Local printer e.g. USB'),
                         ('network', 'Network printer with IP address')],
             'default': 'local',
         },
@@ -65,7 +66,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         'DPMM': {
             'name': _('Dots per mm'),
             'description': _('The resolution of the printer'),
-            'choices': [(8,'8 dots per mm'), (12, '12 dots per mm'), (24, '24 dots per mm')],
+            'choices': [(8, '8 dots per mm'), (12, '12 dots per mm'), (24, '24 dots per mm')],
             'default': 8,
         },
         'PRINTER_INIT': {
@@ -122,7 +123,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
                 printer.close()
             except Exception as error:
                 raise ConnectionError('Error connecting to local printer: ' + str(error))
-        elif(connection=='network'):
+        elif (connection == 'network'):
             try:
                 mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 mysocket.connect((ip_address, port))

@@ -27,10 +27,8 @@ jobs:
           pip install pep8-naming==0.13.3
 
       - name: Check style
-        with: 
-          max-line-length: "100"
         run: |
-          flake8 .
+          flake8 . --max-line-length=100 --ignore=E731
 
           #  publish:
           #    if: github.event_name == 'release' && github.event.action == 'published'
