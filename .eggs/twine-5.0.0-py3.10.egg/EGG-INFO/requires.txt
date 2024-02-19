@@ -1,9 +1,0 @@
-importlib-metadata>=3.6
-keyring>=15.1
-pkginfo>=1.8.1
-readme-renderer>=35.0
-requests-toolbelt!=0.9.0,>=0.8.0
-requests>=2.20
-rfc3986>=1.4.0
-rich>=12.0.0
-urllib3>=1.26.0

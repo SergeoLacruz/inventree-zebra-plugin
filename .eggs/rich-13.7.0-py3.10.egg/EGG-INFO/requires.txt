@@ -1,5 +1,0 @@
-markdown-it-py>=2.2.0
-pygments<3.0.0,>=2.13.0
-
-[jupyter]
-ipywidgets<9,>=7.5.1
