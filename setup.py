@@ -32,7 +32,8 @@ setuptools.setup(
     packages=setuptools.find_packages(),
 
     install_requires=[
-        'zpl @ git+https://github.com/cod3monk/zpl',
+        'zpl >= 0.1.11',
+#        'zpl @ git+https://github.com/cod3monk/zpl',
     ],
 
     setup_requires=[

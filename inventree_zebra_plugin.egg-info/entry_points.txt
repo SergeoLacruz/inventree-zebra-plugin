@@ -1,0 +1,3 @@
+[inventree_plugins]
+ZebraLabeLPlugin = inventree_zebra.zebra_plugin:ZebraLabelPlugin
+
