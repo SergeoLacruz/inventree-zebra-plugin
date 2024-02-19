@@ -14,10 +14,10 @@ Error handling is very basic.
 
 ## Installation
 
-Install this plugin using pip with the following command::
+The plugin is on pypi. Install this plugin using pip with the following command:
 
 ```
-pip install git+https://github.com/SergeoLacruz/inventree-zebra-plugin
+pip install inventree-zebra-plugin
 ```
  
 ## Configuration Options
