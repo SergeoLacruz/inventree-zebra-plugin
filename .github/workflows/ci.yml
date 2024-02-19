@@ -31,7 +31,7 @@ jobs:
           flake8 . --max-line-length=100 --ignore=E731
 
   publish:
-    #    if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'release' && github.event.action == 'published'
     needs: [style-python]
     name: 📦 Publish to PyPi
     runs-on: ubuntu-latest
