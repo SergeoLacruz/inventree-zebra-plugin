@@ -4,7 +4,7 @@ Label printing plugin for InvenTree.
 Supports direct printing of labels on label printers
 """
 # translation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
 from django.core.validators import MaxValueValidator
 
