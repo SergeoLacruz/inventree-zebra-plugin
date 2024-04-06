@@ -53,7 +53,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         },
         'THRESHOLD': {
             'name': _('Threshold'),
-            'description': _('Threshold for converting grayscale to BW (0-255)'),
+            'description': _('Threshold for converting gray scale to BW (0-255)'),
             'validator': [int, MinValueValidator(0), MaxValueValidator(255)],
             'default': 200,
         },
@@ -79,7 +79,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
     def print_label(self, **kwargs):
 
         # Read settings
-        ip_address = self.get_setting('IP_ADDRESS')
         connection = self.get_setting('CONNECTION')
         interface = self.get_setting('LOCAL_IF')
         port = int(self.get_setting('PORT'))
@@ -97,7 +96,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         fn = lambda x: 255 if x > threshold else 0
         label_image = label_image.convert('L').point(fn, mode='1')
 
-        # Uncomment this if you need the intermetiate png file for debugging.
+        # Uncomment this if you need the intermediate png file for debugging.
         # label_image.save('/home/user/label.png')
 
         # Convert image to Zebra zpl
@@ -109,10 +108,22 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         li.write_graphic(label_image, width)
         li.endorigin()
 
-        # Uncomment this if you need the intermetiate zpl file for debugging.
+
+        # Uncomment this if you need the intermediate zpl file for debugging.
         # datafile=open('/home/user/label.txt','w')
         # datafile.write(li.dumpZPL())
         # datafile.close()
+
+        # Select the right printer. 
+        # This is a multi printer hack. In case the label has an IP address in the metadata 
+        # the address in the settings is overwritten be the metadata. By this you can 
+        # specify a separate printer for each label. 
+
+        label=kwargs['label_instance']
+        try:
+            ip_address = label.metadata['ip_address']
+        except:
+            ip_address = self.get_setting('IP_ADDRESS')
 
         # Send the label to the printer
         if (connection == 'local'):
