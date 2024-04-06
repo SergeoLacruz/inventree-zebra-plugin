@@ -108,21 +108,20 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         li.write_graphic(label_image, width)
         li.endorigin()
 
-
         # Uncomment this if you need the intermediate zpl file for debugging.
         # datafile=open('/home/user/label.txt','w')
         # datafile.write(li.dumpZPL())
         # datafile.close()
 
-        # Select the right printer. 
-        # This is a multi printer hack. In case the label has an IP address in the metadata 
-        # the address in the settings is overwritten be the metadata. By this you can 
-        # specify a separate printer for each label. 
+        # Select the right printer.
+        # This is a multi printer hack. In case the label has an IP address in the metadata
+        # the address in the settings is overwritten be the metadata. By this you can
+        # specify a separate printer for each label.
 
-        label=kwargs['label_instance']
+        label = kwargs['label_instance']
         try:
             ip_address = label.metadata['ip_address']
-        except:
+        except Exception:
             ip_address = self.get_setting('IP_ADDRESS')
 
         # Send the label to the printer
