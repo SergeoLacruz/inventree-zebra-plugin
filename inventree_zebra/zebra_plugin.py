@@ -83,10 +83,23 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         interface = self.get_setting('LOCAL_IF')
         port = int(self.get_setting('PORT'))
         threshold = self.get_setting('THRESHOLD')
-        darkness = self.get_setting('DARKNESS')
         dpmm = int(self.get_setting('DPMM'))
         printer_init = self.get_setting('PRINTER_INIT')
         label_image = kwargs['png_file']
+
+        # Select the right printer.
+        # This is a multi printer hack. In case the label has an IP address in the metadata
+        # the address in the settings is overwritten be the metadata. By this you can
+        # specify a separate printer for each label.
+        label = kwargs['label_instance']
+        try:
+            ip_address = label.metadata['ip_address']
+        except Exception:
+            ip_address = self.get_setting('IP_ADDRESS')
+        try:
+            darkness = label.metadata['darkness']
+        except Exception:
+            darkness = self.get_setting('DARKNESS')
 
         # Extract width (x) and height (y) information.
         width = kwargs['width']
@@ -113,17 +126,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # datafile.write(li.dumpZPL())
         # datafile.close()
 
-        # Select the right printer.
-        # This is a multi printer hack. In case the label has an IP address in the metadata
-        # the address in the settings is overwritten be the metadata. By this you can
-        # specify a separate printer for each label.
-
-        label = kwargs['label_instance']
-        try:
-            ip_address = label.metadata['ip_address']
-        except Exception:
-            ip_address = self.get_setting('IP_ADDRESS')
-
         # Send the label to the printer
         if (connection == 'local'):
             try:
@@ -136,6 +138,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         elif (connection == 'network'):
             try:
                 mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                mysocket.settimeout(5)
                 mysocket.connect((ip_address, port))
                 data = li.dumpZPL()
                 mysocket.send(data.encode())

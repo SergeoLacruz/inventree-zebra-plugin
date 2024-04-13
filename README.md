@@ -82,7 +82,7 @@ in the label section. These values have to fit the label size that is in
 the printer. See the example templates for details on template definition.
 
 ## Multi printer hack
-We had the requirement to print labels in different sizes. As we do not
+We have the requirement to print labels in different sizes. As we do not
 want to change the reel for each print we set up a second printer loaded
 with a different label size. InvenTree is not yet able to handle different
 printers. So I added a multi printer hack. You can define a key with an IP
