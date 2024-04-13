@@ -90,13 +90,14 @@ address in the label meta data:
 
 ```
 {"ip_address":"xxx.yyy.zzz.eee"}
+{"darkness":xx}
 ```
 
 If the printer driver finds that key, the IP address from the printer settings
 is overwritten with the address from the meta data. So the print will end up
 in another printer.
 
-Only the IP address can be overwritten so far. All other settings remain.
+Only the IP address and darkness can be overwritten so far. All other settings remain.
 
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from Django for multi language support.
@@ -178,7 +179,7 @@ We can put the result of this directly into the ZPL library.
 
 ```python
 l = zpl.Label(Height, Width, dpmm)
-l.origin(0, 0)
+li.set_darkness(darkness)
 ...
 l.write_graphic(label_image, Width)
 l.endorigin()
