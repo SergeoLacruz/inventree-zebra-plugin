@@ -129,7 +129,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # Send the label to the printer
         if (connection == 'local'):
             try:
-                pass
                 printer = open(interface, 'w')
                 printer.write(li.dumpZPL())
                 printer.close()
