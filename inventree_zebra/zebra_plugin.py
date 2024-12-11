@@ -3,10 +3,14 @@ Label printing plugin for InvenTree.
 
 Supports direct printing of labels on label printers
 """
+import os
+
 # translation
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
 from django.core.validators import MaxValueValidator
+from django.conf import settings
+from django.shortcuts import render
 
 # InvenTree plugin libs
 from plugin import InvenTreePlugin
@@ -44,6 +48,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         'PORT': {
             'name': _('Port'),
             'description': _('Network port in case of network printer'),
+            'validator': [int, MinValueValidator(0)],
             'default': '9100',
         },
         'LOCAL_IF': {
@@ -85,7 +90,10 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         threshold = self.get_setting('THRESHOLD')
         dpmm = int(self.get_setting('DPMM'))
         printer_init = self.get_setting('PRINTER_INIT')
-        label_image = kwargs['png_file']
+
+        # Extract width (x) and height (y) information.
+        width = kwargs['width']
+        height = kwargs['height']
 
         # Select the right printer.
         # This is a multi printer hack. In case the label has an IP address in the metadata
@@ -100,26 +108,46 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             darkness = label.metadata['darkness']
         except Exception:
             darkness = self.get_setting('DARKNESS')
+        try:
+            zpl_template = label.metadata['zpl_template']
+        except Exception:
+            zpl_template = False
 
-        # Extract width (x) and height (y) information.
-        width = kwargs['width']
-        height = kwargs['height']
+        # From here we need to distinguish between html templates and ZPL templates
+        if zpl_template:
+            # Find the template file and load its content
+            template_file = os.path.join(settings.MEDIA_ROOT, 'report/label')
+            template_file = os.path.join(template_file, str(kwargs['context']['template']))
 
-        # Set the darkness
-        fn = lambda x: 255 if x > threshold else 0
-        label_image = label_image.convert('L').point(fn, mode='1')
+            # Render the template
+            fields = {'object': kwargs['item_instance']}
+            raw_zpl = str(render(None, template_file, fields).content)
 
-        # Uncomment this if you need the intermediate png file for debugging.
-        # label_image.save('/home/user/label.png')
+            # Create the zpl data
+            li = zpl.Label(height, width, dpmm)
+            li.set_darkness(darkness)
+            li.labelhome(0, 0)
+            li.zpl_raw(printer_init)
+            li.origin(0, 0)
+            li.zpl_raw(raw_zpl)
+            li.endorigin()
+        else:
+            # Set the threshold
+            label_image = kwargs['png_file']
+            fn = lambda x: 255 if x > threshold else 0
+            label_image = label_image.convert('L').point(fn, mode='1')
 
-        # Convert image to Zebra zpl
-        li = zpl.Label(height, width, dpmm)
-        li.set_darkness(darkness)
-        li.labelhome(0, 0)
-        li.zpl_raw(printer_init)
-        li.origin(0, 0)
-        li.write_graphic(label_image, width)
-        li.endorigin()
+            # Uncomment this if you need the intermediate png file for debugging.
+            # label_image.save('/home/user/label.png')
+
+            # Convert image to Zebra zpl
+            li = zpl.Label(height, width, dpmm)
+            li.set_darkness(darkness)
+            li.labelhome(0, 0)
+            li.zpl_raw(printer_init)
+            li.origin(0, 0)
+            li.write_graphic(label_image, width)
+            li.endorigin()
 
         # Uncomment this if you need the intermediate zpl file for debugging.
         # datafile=open('/home/user/label.txt','w')
