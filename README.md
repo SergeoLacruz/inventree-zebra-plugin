@@ -242,8 +242,23 @@ In that case the printer driver ignores the picture rendered by WeasyPrint. Inst
 it loads the ZPL template, runs it through the Django rendering engine and send the
 result to the printer. The result can look like:
 
-![Example label](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/example_label.png)
+```
+{% autoescape off %}
+^FT30,25^A0N,18,22^FDIPN^FS
+^FT150,30^FB100,1,,C,,^A0N,24,32^FDACME^FS
+^FT320,25^A0N,18,22^FD{{ object.pk }}^FS
+^FT100,70^FB200,2,,C,,^A0N,18,22^FD{{ object.part.name }}^FS
+^FT100,100^FB200,1,,C,,^A0N,18,22^FD{% for ma in object.part.manufacturer_parts.all %}{{ ma.manufacturer.name }}{% endfor %}^FS
+^FT30,150^FB340,1,,C,,^A0N,30,40^FD{{ object.part.IPN }}^FS
+^FT20,210^FB360,3,,L,,^A0N,18,22^FD{{ object.part.description }}^FS
+^FT15,110^BQ,2,3^FDQA,{{ object.part.IPN }}^FS
+^FT310,130^BQ,2,3^FDQA,{{ context.qr_data }}^FS
+{% endautoescape %}
+```
 
-The template file for this is [here](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/stockitem_50x30_zpl_001.html)
+Autoescape must be off in that case. We do not need &quot and similar escapes here.
+The context variables are object.xxx for the object to be printed and context.xxx for
+the printing context. Limitation: ZPL commands starting with backslash like \& cannot
+be used so far.
 
 Happy printing.
