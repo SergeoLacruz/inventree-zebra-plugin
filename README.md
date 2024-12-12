@@ -4,9 +4,11 @@
 # inventree-zebra-plugin
 
 This is a label printing plugin for [InvenTree](https://inventree.org), which provides
-support for Zebra Label printers. It was only tested with  GK420T but should work for
-other ZPL printers too. It uses the ZPL library to convert the png data provided by
-InvenTree to Zebra's bitmap format.
+support for Zebra Label printers. It allows two modes of operation:
+
+- Use the ZPL library to convert the png data provided by InvenTree to Zebra's bitmap
+  format and send this to the printer.
+- Write a ZPL template and let the printer do the rendering.
 
 It can output the print data either to a local printer connected to the computer via
 USB or to a network printer with an IP address. The output can be configured in the
@@ -227,7 +229,7 @@ pixels.  The darkness values are just examples. Your values will differ based on
 media type and printer age. The printer head tends to wear out and the darkness value might
 need an adjustment from time to time.
 
-### Direct ZPL rendering
+### In printer rendering
 You can also bypass the InvenTree print engine and render the label inside the printer.
 The printer knows best how to render the label and the print quality is best. Inspired
 by [inventree-zpl-plugin](https://github.com/yellowcrescent/inventree-zpl-plugin) a similar
