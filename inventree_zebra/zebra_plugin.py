@@ -120,8 +120,11 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             template_file = os.path.join(template_file, str(kwargs['context']['template']))
 
             # Render the template
-            fields = {'object': kwargs['item_instance']}
-            raw_zpl = str(render(None, template_file, fields).content)
+            fields = {'object': kwargs['item_instance'], 'context': kwargs['context']}
+            try:
+                raw_zpl = str(render(None, template_file, fields).content, 'utf-8').replace('\n', '')
+            except Exception:
+                raise Exception('Error rendering ZPL template')
 
             # Create the zpl data
             li = zpl.Label(height, width, dpmm)
