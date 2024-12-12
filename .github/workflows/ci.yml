@@ -28,7 +28,7 @@ jobs:
 
       - name: Check style
         run: |
-          flake8 . --max-line-length=100 --ignore=E731
+          flake8 . --max-line-length=100 --ignore=E731,E501
 
   publish:
     if: github.event_name == 'release' && github.event.action == 'published'

@@ -227,8 +227,23 @@ pixels.  The darkness values are just examples. Your values will differ based on
 media type and printer age. The printer head tends to wear out and the darkness value might
 need an adjustment from time to time.
 
-### Alternative
-You can also bypass the InvenTree template and printing system and directly create ZPL from
-the parts data. The printer knows best how to render the label and the print quality is best.
-If you are interested in this way have a look at the [inventree-zpl-plugin](https://github.com/yellowcrescent/inventree-zpl-plugin)
-that does exactly that.
+### Direct ZPL rendering
+You can also bypass the InvenTree print engine and render the label inside the printer.
+The printer knows best how to render the label and the print quality is best. Inspired
+by [inventree-zpl-plugin](https://github.com/yellowcrescent/inventree-zpl-plugin) a similar
+function was aded to the zebra printer driver. You can write a ZPL template and upload
+it to the InvenTree Label templates as usual. Add a command to the template's metadata:
+
+```
+{"zpl_template": "True"}
+```
+
+In that case the printer driver ignores the picture rendered by WeasyPrint. Instead
+it loads the ZPL template, runs it through the Django rendering engine and send the
+result to the printer. The result can look like:
+
+![Example label](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/example_label.png)
+
+The template file for this is [here](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/stockitem_50x30_zpl_001.html)
+
+Happy printing.

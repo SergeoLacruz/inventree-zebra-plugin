@@ -1,0 +1,11 @@
+{% autoescape off %}
+^FT30,25^A0N,18,22^FDIPN^FS
+^FT150,30^FB100,1,,C,,^A0N,24,32^FDACME^FS
+^FT320,25^A0N,18,22^FD{{ object.pk }}^FS
+^FT100,70^FB200,2,,C,,^A0N,18,22^FD{{ object.part.name }}^FS
+^FT100,100^FB200,1,,C,,^A0N,18,22^FD{% for ma in object.part.manufacturer_parts.all %}{{ ma.manufacturer.name }}{% endfor %}^FS
+^FT30,150^FB340,1,,C,,^A0N,30,40^FD{{ object.part.IPN }}^FS
+^FT20,210^FB360,3,,L,,^A0N,18,22^FD{{ object.part.description }}^FS
+^FT15,110^BQ,2,3^FDQA,{{ object.part.IPN }}^FS
+^FT310,130^BQ,2,3^FDQA,{{ context.qr_data }}^FS
+{% endautoescape %}
