@@ -3,14 +3,14 @@ Label printing plugin for InvenTree.
 
 Supports direct printing of labels on label printers
 """
-import os
+# System stuff
+import socket
+from datetime import datetime
 
-# translation
+# Django stuff
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
 from django.core.validators import MaxValueValidator
-from django.conf import settings
-from django.shortcuts import render
 
 # InvenTree plugin libs
 from plugin import InvenTreePlugin
@@ -18,9 +18,8 @@ from plugin.mixins import LabelPrintingMixin, SettingsMixin
 
 # Zebra printer support
 import zpl
-import socket
 
-from inventree_zebra.version import ZEBRA_PLUGIN_VERSION
+from .version import ZEBRA_PLUGIN_VERSION
 
 
 class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
@@ -30,6 +29,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
     VERSION = ZEBRA_PLUGIN_VERSION
     NAME = "Zebra"
     SLUG = "zebra"
+    PUBLISH_DATE = datetime.today().strftime('%Y-%m-%d')
     TITLE = "Zebra Label Printer"
 
     SETTINGS = {
@@ -115,16 +115,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
         # From here we need to distinguish between html templates and ZPL templates
         if zpl_template:
-            # Find the template file and load its content
-            template_file = os.path.join(settings.MEDIA_ROOT, 'report/label')
-            template_file = os.path.join(template_file, str(kwargs['context']['template']))
-
-            # Render the template
-            fields = {'object': kwargs['item_instance'], 'context': kwargs['context']}
-            try:
-                raw_zpl = str(render(None, template_file, fields).content, 'utf-8').replace('\n', '')
-            except Exception:
-                raise Exception('Error rendering ZPL template')
+            raw_zpl = kwargs['context']['template'].render_as_string(kwargs['item_instance'], None).replace('\n', '')
 
             # Create the zpl data
             li = zpl.Label(height, width, dpmm)
