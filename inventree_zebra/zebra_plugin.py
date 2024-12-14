@@ -11,6 +11,7 @@ from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
 from django.core.validators import MaxValueValidator
+from django.core.files.base import ContentFile
 
 # InvenTree plugin libs
 from plugin import InvenTreePlugin
@@ -20,6 +21,7 @@ from plugin.mixins import LabelPrintingMixin, SettingsMixin
 import zpl
 
 from .version import ZEBRA_PLUGIN_VERSION
+from .request_wrappers import Wrappers
 
 
 class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
@@ -31,12 +33,15 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
     SLUG = "zebra"
     PUBLISH_DATE = datetime.today().strftime('%Y-%m-%d')
     TITLE = "Zebra Label Printer"
+    preview_result = ''
 
+#    BLOCKING_PRINT = True
     SETTINGS = {
         'CONNECTION': {
             'name': _('Printer Interface'),
             'description': _('Select local or network printer'),
             'choices': [('local', 'Local printer e.g. USB'),
+                        ('preview', 'ZPL preview using labelary.com API'),
                         ('network', 'Network printer with IP address')],
             'default': 'local',
         },
@@ -154,6 +159,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
                 printer = open(interface, 'w')
                 printer.write(li.dumpZPL())
                 printer.close()
+                self.preview_result = None
             except Exception as error:
                 raise ConnectionError('Error connecting to local printer: ' + str(error))
         elif (connection == 'network'):
@@ -164,7 +170,21 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
                 data = li.dumpZPL()
                 mysocket.send(data.encode())
                 mysocket.close()
+                self.preview_result = None
             except Exception as error:
                 raise ConnectionError('Error connecting to network printer: ' + str(error))
+        elif (connection == 'preview'):
+            width_inch = round(width / 25.4, 2)
+            height_inch = round(height / 25.4, 2)
+            url = f'http://api.labelary.com/v1/printers/{dpmm}dpmm/labels/{width_inch}x{height_inch}/0'
+            header = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'application/pdf'}
+            response = Wrappers.post_request(self, li.dumpZPL(), url, header)
+            if response.status_code == 200:
+                self.preview_result = ContentFile(response.content, 'label.pdf')
+            else:
+                self.preview_result = ContentFile(f'Labalary API Error: {response.content}', 'label.html')
         else:
             print('Unknown Interface')
+
+    def get_generated_file(self, **kwargs):
+        return self.preview_result
