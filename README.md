@@ -26,7 +26,7 @@ pip install inventree-zebra-plugin
 
 ## Configuration Options
 ### Printer Interface
-Here you can chose between Local printer, network printer or the labelary.com API.
+Here you can chose between local printer, network printer or the labelary.com API.
 The last one is useful for preview of labels, especially when ZPL templates are used.
 Default value is a local printer.
 
@@ -225,7 +225,7 @@ gets large enough to be readable in any quality.
 
 ### Secret 2: Darkness
 Zebra printers allow to set the darkness of the print in values between 0 (white) and 30 (max)
-The left code was printed with a value 0r 30. The black dots tend to blur out a bit resulting
+The left code was printed with a value of 30. The black dots tend to blur out a bit resulting
 in smaller white areas. The right code was printed with a value of 25 resulting in larger white
 pixels.  The darkness values are just examples. Your values will differ based on printer model,
 media type and printer age. The printer head tends to wear out and the darkness value might
@@ -233,8 +233,8 @@ need an adjustment from time to time.
 
 ## In printer rendering
 You can also bypass the InvenTree print engine and render the label inside the printer.
-The printer knows best how to render the label and the print quality is best. Inspired
-by [inventree-zpl-plugin](https://github.com/yellowcrescent/inventree-zpl-plugin) a similar
+The printer knows how to render the label for best quality. Inspired by the
+[inventree-zpl-plugin](https://github.com/yellowcrescent/inventree-zpl-plugin) a similar
 function was aded to the zebra printer driver. You can write a ZPL template and upload
 it to the InvenTree Label templates as usual. Add a command to the template's metadata:
 
@@ -243,12 +243,12 @@ it to the InvenTree Label templates as usual. Add a command to the template's me
 ```
 
 In that case the printer driver ignores the picture rendered by WeasyPrint. Instead
-it calls the render_to_string function of the template and send the
+it calls the render_to_string function of the template and sends the
 result to the printer. The result can look like:
 
 ![Label Example](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/example_label.png)
 
-This is the template to create the label:
+The upper label was created using this template:
 
 ```
 {% autoescape off %}
@@ -264,14 +264,14 @@ This is the template to create the label:
 {% endautoescape %}
 ```
 
-Autoescape must be off in that case. We do not need &quot and similar escapes here.
+Autoescape must be off. We do not need &quot and similar escapes here.
 Context variables can be used as usual.
 
-!!! warning "Linitation"
-    ZPL commands starting with backslash like \& cannot be used so far.
+!!! warning "Limitation"
+    ZPL commands starting with backslash like \\& cannot be used so far.
 
 ### Preview
-The printer driver allows an output device called preview. If this is selected
+The printer driver allows an output device called "preview". If this is selected
 the ZPL code is sent to the API of labelary.com. The API sends back pdf data
 which is displayed in a new browser window. This is helpful while writing ZPL
 templates but works with HTML templates too. Please be careful and do not send
