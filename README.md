@@ -26,7 +26,9 @@ pip install inventree-zebra-plugin
 
 ## Configuration Options
 ### Printer Interface
-Here you can chose between Local printer or network printer. Default value is a local printer.
+Here you can chose between Local printer, network printer or the labelary.com API.
+The last one is useful for preview of labels, especially when ZPL templates are used.
+Default value is a local printer.
 
 ### IP address
 In case you use an IP printer set the IPv4 address here.
@@ -229,7 +231,7 @@ pixels.  The darkness values are just examples. Your values will differ based on
 media type and printer age. The printer head tends to wear out and the darkness value might
 need an adjustment from time to time.
 
-### In printer rendering
+## In printer rendering
 You can also bypass the InvenTree print engine and render the label inside the printer.
 The printer knows best how to render the label and the print quality is best. Inspired
 by [inventree-zpl-plugin](https://github.com/yellowcrescent/inventree-zpl-plugin) a similar
@@ -267,5 +269,16 @@ Context variables can be used as usual.
 
 !!! warning "Linitation"
     ZPL commands starting with backslash like \& cannot be used so far.
+
+### Preview
+The printer driver allows an output device called preview. If this is selected
+the ZPL code is sent to the API of labelary.com. The API sends back pdf data
+which is displayed in a new browser window. This is helpful while writing ZPL
+templates but works with HTML templates too. Please be careful and do not send
+confidential information to the API.
+
+In case you need to pass a proxy for the POST requests set the environment
+variables PROXY_CON and PROXY_URL on the server. The plugin does not have
+settings for this.
 
 Happy printing.
