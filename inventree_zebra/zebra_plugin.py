@@ -179,9 +179,9 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             url = f'https://api.labelary.com/v1/printers/{dpmm}dpmm/labels/{width_inch}x{height_inch}/0'
             header = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'application/pdf'}
             response = Wrappers.post_request(self, li.dumpZPL(), url, header)
-            try: 
+            try:
                 status_code = response.status_code
-            except Exception as Error:
+            except Exception:
                 status_code = 0
             if status_code == 200:
                 self.preview_result = ContentFile(response.content, 'label.pdf')
