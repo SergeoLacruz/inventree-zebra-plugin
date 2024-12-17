@@ -41,8 +41,8 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'name': _('Printer Interface'),
             'description': _('Select local or network printer'),
             'choices': [('local', 'Local printer e.g. USB'),
-                        ('preview', 'ZPL preview using labelary.com API'),
-                        ('network', 'Network printer with IP address')],
+                        ('network', 'Network printer with IP address'),
+                        ('preview', 'ZPL preview using labelary.com API')],
             'default': 'local',
         },
         'IP_ADDRESS': {
@@ -176,11 +176,17 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         elif (connection == 'preview'):
             width_inch = round(width / 25.4, 2)
             height_inch = round(height / 25.4, 2)
-            url = f'http://api.labelary.com/v1/printers/{dpmm}dpmm/labels/{width_inch}x{height_inch}/0'
+            url = f'https://api.labelary.com/v1/printers/{dpmm}dpmm/labels/{width_inch}x{height_inch}/0'
             header = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'application/pdf'}
             response = Wrappers.post_request(self, li.dumpZPL(), url, header)
-            if response.status_code == 200:
+            try: 
+                status_code = response.status_code
+            except Exception as Error:
+                status_code = 0
+            if status_code == 200:
                 self.preview_result = ContentFile(response.content, 'label.pdf')
+            elif status_code == 0:
+                self.preview_result = ContentFile(f'Request error: {response}', 'label.html')
             else:
                 self.preview_result = ContentFile(f'Labalary API Error: {response.content}', 'label.html')
         else:
