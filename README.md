@@ -103,6 +103,89 @@ in another printer.
 
 Only the IP address and darkness can be overwritten so far. All other settings remain.
 
+## Quality matters
+The InvenTree printer system uses a graphical representation of the label. The label is described
+in HTML, converted to a pixel graphic and printed. The advantage is independency from  printer
+models and systems. Disadvantage is larger data and quality problems with darkness and scaling.
+Let's have a look at the following printout:
+
+![QRcodes](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/qr.png)
+
+Both codes have been printed with the same printer on the same reel. The left one is
+hardly readable using my mobile. The right one reads easily even as it is smaller.
+
+### Secret 1, Scale
+The printer resolution is 8 dots per mm resulting in a dot size of 0.125mm. The QR code pixel
+and the printer pixel size should be integrally divisible. The code in the picture has 21
+pixels plus one in the frame, so 23 pixel. The frame is set in the HTML description.
+
+```
+{% qrcode qr_data border=1 %}
+```
+
+I selected two dots per pixel. So 23 * 2 * 0.125 = 6.125mm. If the size is something different
+scaling takes place and the result might be worse. If you like a larger printout select more
+dots per pixel. From a certain size upwards the value does not matter any more because the code
+gets large enough to be readable in any quality.
+
+### Secret 2: Darkness
+Zebra printers allow to set the darkness of the print in values between 0 (white) and 30 (max)
+The left code was printed with a value of 30. The black dots tend to blur out a bit resulting
+in smaller white areas. The right code was printed with a value of 25 resulting in larger white
+pixels.  The darkness values are just examples. Your values will differ based on printer model,
+media type and printer age. The printer head tends to wear out and the darkness value might
+need an adjustment from time to time.
+
+## In printer rendering
+You can also bypass the InvenTree print engine and render the label inside the printer.
+The printer knows how to render the label for best quality. Inspired by the
+[inventree-zpl-plugin](https://github.com/yellowcrescent/inventree-zpl-plugin) a similar
+function was aded to the zebra printer driver. You can write a ZPL template and upload
+it to the InvenTree Label templates as usual. Add a command to the template's metadata:
+
+```
+{"zpl_template": "True"}
+```
+
+In that case the printer driver ignores the picture rendered by WeasyPrint. Instead
+it calls the render_to_string function of the template and sends the
+result to the printer. The result can look like:
+
+![Label Example](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/example_label.png)
+
+The upper label was created using this template:
+
+```
+{% autoescape off %}
+^FT30,25^A0N,18,22^FDIPN^FS
+^FT150,30^FB100,1,,C,,^A0N,24,32^FDACME^FS
+^FT320,25^A0N,18,22^FD{{ item.pk }}^FS
+^FT100,70^FB200,2,,C,,^A0N,18,22^FD{{ part.name }}^FS
+^FT100,100^FB200,1,,C,,^A0N,18,22^FD{{ part.manufacturer_parts.first.manufacturer.name }}^FS
+^FT30,150^FB340,1,,C,,^A0N,30,40^FD{{ part.IPN }}^FS
+^FT20,210^FB360,3,,L,,^A0N,18,22^FD{{ part.description }}^FS
+^FT15,110^BQ,2,3^FDQA,{{ part.IPN }}^FS
+^FT310,130^BQ,2,3^FDQA,{{ qr_data }}^FS
+{% endautoescape %}
+```
+
+Autoescape must be off. We do not need &quot and similar escapes here.
+Context variables can be used as usual.
+
+!!! warning "Limitation"
+    ZPL commands starting with backslash like \\& cannot be used so far.
+
+### Preview
+The printer driver allows an output device called "preview". If this is selected
+the ZPL code is sent to the API of labelary.com. The API sends back pdf data
+which is displayed in a new browser window. This is helpful while writing ZPL
+templates but works with HTML templates too. Please be careful and do not send
+confidential information to the API.
+
+In case you need to pass a proxy for the POST requests set the environment
+variables PROXY_CON and PROXY_URL on the server. The plugin does not have
+settings for this.
+
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from Django for multi language support.
 The import the InvenTree libs and everything you need for plugin. Here we have ZPL for the Zebra bitmaps and socket
@@ -197,88 +280,5 @@ The plugin was tested with a labels of various sizes defined using css and html.
 can be chosen in the InvenTree settings. 800 is a good value because it gives high quality.
 
 The rest of the code is just output to the printer on different interfaces.
-
-## Quality matters
-The InvenTree printer system uses a graphical representation of the label. The label is described
-in HTML, converted to a pixel graphic and printed. The advantage is independency from  printer
-models and systems. Disadvantage is larger data and quality problems with darkness and scaling.
-Let's have a look at the following printout:
-
-![QRcodes](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/qr.png)
-
-Both codes have been printed with the same printer on the same reel. The left one is
-hardly readable using my mobile. The right one reads easily even as it is smaller.
-
-### Secret 1, Scale
-The printer resolution is 8 dots per mm resulting in a dot size of 0.125mm. The QR code pixel
-and the printer pixel size should be integrally divisible. The code in the picture has 21
-pixels plus one in the frame, so 23 pixel. The frame is set in the HTML description.
-
-```
-{% qrcode qr_data border=1 %}
-```
-
-I selected two dots per pixel. So 23 * 2 * 0.125 = 6.125mm. If the size is something different
-scaling takes place and the result might be worse. If you like a larger printout select more
-dots per pixel. From a certain size upwards the value does not matter any more because the code
-gets large enough to be readable in any quality.
-
-### Secret 2: Darkness
-Zebra printers allow to set the darkness of the print in values between 0 (white) and 30 (max)
-The left code was printed with a value of 30. The black dots tend to blur out a bit resulting
-in smaller white areas. The right code was printed with a value of 25 resulting in larger white
-pixels.  The darkness values are just examples. Your values will differ based on printer model,
-media type and printer age. The printer head tends to wear out and the darkness value might
-need an adjustment from time to time.
-
-## In printer rendering
-You can also bypass the InvenTree print engine and render the label inside the printer.
-The printer knows how to render the label for best quality. Inspired by the
-[inventree-zpl-plugin](https://github.com/yellowcrescent/inventree-zpl-plugin) a similar
-function was aded to the zebra printer driver. You can write a ZPL template and upload
-it to the InvenTree Label templates as usual. Add a command to the template's metadata:
-
-```
-{"zpl_template": "True"}
-```
-
-In that case the printer driver ignores the picture rendered by WeasyPrint. Instead
-it calls the render_to_string function of the template and sends the
-result to the printer. The result can look like:
-
-![Label Example](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/example_label.png)
-
-The upper label was created using this template:
-
-```
-{% autoescape off %}
-^FT30,25^A0N,18,22^FDIPN^FS
-^FT150,30^FB100,1,,C,,^A0N,24,32^FDACME^FS
-^FT320,25^A0N,18,22^FD{{ item.pk }}^FS
-^FT100,70^FB200,2,,C,,^A0N,18,22^FD{{ part.name }}^FS
-^FT100,100^FB200,1,,C,,^A0N,18,22^FD{{ part.manufacturer_parts.first.manufacturer.name }}^FS
-^FT30,150^FB340,1,,C,,^A0N,30,40^FD{{ part.IPN }}^FS
-^FT20,210^FB360,3,,L,,^A0N,18,22^FD{{ part.description }}^FS
-^FT15,110^BQ,2,3^FDQA,{{ part.IPN }}^FS
-^FT310,130^BQ,2,3^FDQA,{{ qr_data }}^FS
-{% endautoescape %}
-```
-
-Autoescape must be off. We do not need &quot and similar escapes here.
-Context variables can be used as usual.
-
-!!! warning "Limitation"
-    ZPL commands starting with backslash like \\& cannot be used so far.
-
-### Preview
-The printer driver allows an output device called "preview". If this is selected
-the ZPL code is sent to the API of labelary.com. The API sends back pdf data
-which is displayed in a new browser window. This is helpful while writing ZPL
-templates but works with HTML templates too. Please be careful and do not send
-confidential information to the API.
-
-In case you need to pass a proxy for the POST requests set the environment
-variables PROXY_CON and PROXY_URL on the server. The plugin does not have
-settings for this.
 
 Happy printing.
