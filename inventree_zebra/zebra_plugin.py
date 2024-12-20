@@ -5,7 +5,6 @@ Supports direct printing of labels on label printers
 """
 # System stuff
 import socket
-from datetime import datetime
 
 # Django stuff
 from django.utils.translation import gettext_lazy as _
@@ -31,7 +30,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
     VERSION = ZEBRA_PLUGIN_VERSION
     NAME = "Zebra"
     SLUG = "zebra"
-    PUBLISH_DATE = datetime.today().strftime('%Y-%m-%d')
+    PUBLISH_DATE = "2024-12-20"
     TITLE = "Zebra Label Printer"
     preview_result = ''
 
