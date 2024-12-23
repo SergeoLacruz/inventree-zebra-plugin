@@ -16,6 +16,7 @@ from django_q.models import Task
 # InvenTree plugin libs
 from plugin import InvenTreePlugin
 from plugin.mixins import LabelPrintingMixin, SettingsMixin, ScheduleMixin
+from report.models import LabelTemplate
 
 # Zebra printer support
 import zpl
@@ -96,14 +97,17 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
 
     def get_settings_content(self, request):
         t = Task.objects.filter(group='plugin.zebra.member')[0]
-        interface = t.result['interface']
-        printer_model = t.result['printer_model']
-        printer_name = t.result['printer_name']
-        sw_version = t.result['sw_version']
-        dpi = t.result['dpi']
-        memory = t.result['memory']
-        paper_out = t.result['paper_out']
-        head_up = t.result['head_up']
+        table_rows = ''
+        for printer in t.result:
+            table_rows = table_rows + f"""<tr><td>{printer.get('interface')}</td>
+                                            <td>{printer.get('printer_model')}</td>
+                                            <td>{printer.get('printer_name')}</td>
+                                            <td>{printer.get('sw_version')}</td>
+                                            <td>{printer.get('dpi')}</td>
+                                            <td>{printer.get('paper_out')}</td>
+                                            <td>{printer.get('head_up')}</td>
+                                            <td>{printer.get('memory')}</td>
+                                        </tr>"""
         return f"""
         <h4>Printer Status:</h4>
         <table class='table table-condensed'>
@@ -117,14 +121,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
                 <th> Head Up </th>
                 <th> Memory </th></tr>
             <tr>
-                <td>{ interface }</td>
-                <td>{ printer_model }</td>
-                <td>{ printer_name }</td>
-                <td>{ sw_version }</td>
-                <td>{ dpi }</td>
-                <td>{ paper_out }</td>
-                <td>{ head_up }</td>
-                <td>{ memory }</td></tr>
+            {table_rows}
         </table>
         """
 
@@ -238,65 +235,72 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         return self.preview_result
 
     def ping_printer(self, *args, **kwargs):
-        print('ping')
+        print('--------- ping ----------')
         connection = self.get_setting('CONNECTION')
-        printer_data = {
-            'interface': '',
-            'printer_model': '',
-            'printer_name': '',
-            'sw_version': '',
-            'dpi': '',
-            'memory': '',
-            'paper_out': '',
-            'head_up': '',
-        }
+        printer_data = []
         if (connection == 'network'):
-            ip_address = self.get_setting('IP_ADDRESS')
             port = int(self.get_setting('PORT'))
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((ip_address, port))
-            except OSError as error:
-                print('ping False')
-                return (f'{ip_address} ERROR {error}')
-            else:
-                s.close()
-                print('ping true')
-                return (f'{ip_address} OK')
+            all_printer = self.collect_all_ipprinter()
+            for printer in all_printer:
+                data = self.get_all_printer_data(printer, port)
+                printer_data.append(data)
+            return (printer_data)
         elif (connection == 'local'):
             interface = self.get_setting('LOCAL_IF')
-            result = self.get_printer_data(interface, '~HI')
-            try:
-                result.split(',')[1]
-            except Exception:
-                printer_data['interface'] = interface
-                printer_data['printer_model'] = result
-                return (printer_data)
-            result_hs = self.get_printer_data(interface, '~HS')
-            try:
-                result_hs.split(',')[1]
-            except Exception:
-                printer_data['interface'] = interface
-                printer_data['printer_model'] = result_hs
-                return (printer_data)
-            result_hs = result_hs.replace('\n', ',')
-            printer_name = self.get_printer_data(interface, '! U1 getvar "device.friendly_name"\r\n')
-            head_up = self.get_printer_data(interface, '! U1 getvar "head.latch"\r\n')
-            printer_data = {
-                'interface': interface,
-                'printer_model': result.split(',')[0],
-                'printer_name': printer_name,
-                'sw_version': result.split(',')[1],
-                'dpi': result.split(',')[2],
-                'memory': result.split(',')[3],
-                'paper_out': result_hs.split(',')[1],
-                'head_up': head_up,
-            }
+            printer_data.append(self.get_all_printer_data(interface))
             return (printer_data)
         else:
-            return ('Preview printer skipped')
+            printer_data.append({'interface': 'preview', 'printer_model': 'Preview printer skipped'})
+            return (printer_data)
 
-# --------------------------- get_printe_data --------------------------------
+# ----------------------------------------------------------------------------
+    def get_all_printer_data(self, printer, port=None):
+
+        if port is None:
+            result = self.get_printer_data(printer, '~HI')
+            result_hs = self.get_printer_data(printer, '~HS')
+            printer_name = self.get_printer_data(printer, '! U1 getvar "device.friendly_name"\r\n')
+            head_up = self.get_printer_data(printer, '! U1 getvar "head.latch"\r\n')
+        else:
+            result = self.get_ipprinter_data(printer, port, '~HI')
+            result_hs = self.get_ipprinter_data(printer, port, '~HS')
+            printer_name = self.get_ipprinter_data(printer, port, '! U1 getvar "device.friendly_name"\r\n')
+            head_up = self.get_ipprinter_data(printer, port, '! U1 getvar "head.latch"\r\n')
+        try:
+            result.split(',')[1]
+            result_hs.split(',')[1]
+        except Exception:
+            printer_data = {'interface': printer, 'printer_model': f'HI:{result}, HS:{result_hs}'}
+            print('ping False')
+            return (printer_data)
+        result_hs = result_hs.replace('\n', ',')
+        printer_data = {
+            'interface': printer,
+            'printer_model': result.split(',')[0],
+            'printer_name': printer_name,
+            'sw_version': result.split(',')[1],
+            'dpi': result.split(',')[2],
+            'memory': result.split(',')[3],
+            'paper_out': result_hs.split(',')[1],
+            'head_up': head_up,
+        }
+        print('ping true')
+        return (printer_data)
+
+# --------------------------- get_printer_data --------------------------------
+    def get_ipprinter_data(self, ip_address, port, command):
+        try:
+            mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            mysocket.settimeout(5)
+            mysocket.connect((ip_address, port))
+            mysocket.send(command.encode())
+            result = mysocket.recv(1000)
+            mysocket.close()
+        except Exception as error:
+            return (f'Connection error on {ip_address}: {error}')
+        return result.decode('UTF-8')
+
+# --------------------------- get_printer_data --------------------------------
     def get_printer_data(self, device, command):
         try:
             printer = open(device, 'r+')
@@ -310,5 +314,16 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         except Exception as error:
             return (f'Connection Error on {device}: {error}')
         if to == 10:
-            return (f'No response from {device}')
-            return result
+            return (f'Bad response from {device}')
+        return result
+
+# -----------------------------------------------------------------------------
+    def collect_all_ipprinter(self):
+
+        all_printer = []
+        all_printer.append(self.get_setting('IP_ADDRESS'))
+        all_templates = LabelTemplate.objects.all()
+        for template in all_templates:
+            if 'ip_address' in template.metadata:
+                all_printer.append(template.metadata['ip_address'])
+        return all_printer
