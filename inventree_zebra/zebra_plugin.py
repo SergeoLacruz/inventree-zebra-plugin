@@ -164,10 +164,10 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         elif (connection == 'network'):
             try:
                 mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                mysocket.settimeout(5)
+                mysocket.settimeout(10.0)
                 mysocket.connect((ip_address, port))
                 data = li.dumpZPL()
-                mysocket.send(data.encode())
+                mysocket.sendall(data.encode())
                 mysocket.close()
                 self.preview_result = None
             except Exception as error:
