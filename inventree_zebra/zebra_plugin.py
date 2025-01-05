@@ -106,6 +106,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
                                             <td>{printer.get('dpi')}</td>
                                             <td>{printer.get('paper_out')}</td>
                                             <td>{printer.get('head_up')}</td>
+                                            <td>{printer.get('total_print_length')}</td>
                                             <td>{printer.get('memory')}</td>
                                         </tr>"""
         return f"""
@@ -119,6 +120,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
                 <th> dpi </th>
                 <th> Paper out </th>
                 <th> Head Up </th>
+                <th> Print Length </th>
                 <th> Memory </th></tr>
             <tr>
             {table_rows}
@@ -204,10 +206,10 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         elif (connection == 'network'):
             try:
                 mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                mysocket.settimeout(5)
+                mysocket.settimeout(10.0)
                 mysocket.connect((ip_address, port))
                 data = li.dumpZPL()
-                mysocket.send(data.encode())
+                mysocket.sendall(data.encode())
                 mysocket.close()
                 self.preview_result = None
             except Exception as error:
@@ -261,11 +263,13 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             result_hs = self.get_printer_data(printer, '~HS')
             printer_name = self.get_printer_data(printer, '! U1 getvar "device.friendly_name"\r\n')
             head_up = self.get_printer_data(printer, '! U1 getvar "head.latch"\r\n')
+            total_print_length = self.get_printer_data(printer, '! U1 getvar "odometer.total_print_length"\r\n')
         else:
             result = self.get_ipprinter_data(printer, port, '~HI')
             result_hs = self.get_ipprinter_data(printer, port, '~HS')
             printer_name = self.get_ipprinter_data(printer, port, '! U1 getvar "device.friendly_name"\r\n')
             head_up = self.get_ipprinter_data(printer, port, '! U1 getvar "head.latch"\r\n')
+            total_print_length = self.get_ipprinter_data(printer, port, '! U1 getvar "odometer.total_print_length"\r\n')
         try:
             result.split(',')[1]
             result_hs.split(',')[1]
@@ -273,6 +277,11 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             printer_data = {'interface': printer, 'printer_model': f'HI:{result}, HS:{result_hs}'}
             print('ping False')
             return (printer_data)
+        try:
+            total_print_length = total_print_length.replace('"','')
+            total_print_length = total_print_length.split(',')[1] 
+        except Exception:
+            total_print_length = '' 
         result_hs = result_hs.replace('\n', ',')
         printer_data = {
             'interface': printer,
@@ -283,6 +292,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             'memory': result.split(',')[3],
             'paper_out': result_hs.split(',')[1],
             'head_up': head_up,
+            'total_print_length': total_print_length,
         }
         print('ping true')
         return (printer_data)
