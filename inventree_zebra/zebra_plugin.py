@@ -278,10 +278,10 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             print('ping False')
             return (printer_data)
         try:
-            total_print_length = total_print_length.replace('"','')
-            total_print_length = total_print_length.split(',')[1] 
+            total_print_length = total_print_length.replace('"', '')
+            total_print_length = total_print_length.split(',')[1]
         except Exception:
-            total_print_length = '' 
+            total_print_length = ''
         result_hs = result_hs.replace('\n', ',')
         printer_data = {
             'interface': printer,
