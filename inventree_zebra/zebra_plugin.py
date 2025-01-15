@@ -85,6 +85,12 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             'description': _('Additional ZPL commands sent to the printer. Use carefully!'),
             'default': '~TA000~JSN^LT0^MNW^MTT^PMN^PON^PR2,2^LRN',
         },
+        'ENABLE_PRINTER_INFO': {
+            'name': 'Get Printer Info',
+            'description': 'Collect status info from all IP printers regularly',
+            'default': True,
+            'validator': bool,
+        },
     }
 
     SCHEDULED_TASKS = {
@@ -237,9 +243,11 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         return self.preview_result
 
     def ping_printer(self, *args, **kwargs):
-        print('--------- ping ----------')
-        connection = self.get_setting('CONNECTION')
+
         printer_data = []
+        if not self.get_setting('ENABLE_PRINTER_INFO'):
+            return (printer_data)
+        connection = self.get_setting('CONNECTION')
         if (connection == 'network'):
             port = int(self.get_setting('PORT'))
             all_printer = self.collect_all_ipprinter()
@@ -275,7 +283,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             result_hs.split(',')[1]
         except Exception:
             printer_data = {'interface': printer, 'printer_model': f'HI:{result}, HS:{result_hs}'}
-            print('ping False')
             return (printer_data)
         try:
             total_print_length = total_print_length.replace('"', '')
@@ -294,7 +301,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             'head_up': head_up,
             'total_print_length': total_print_length,
         }
-        print('ping true')
         return (printer_data)
 
 # --------------------------- get_printer_data --------------------------------
