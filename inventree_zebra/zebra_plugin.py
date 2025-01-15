@@ -334,6 +334,9 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         all_printer.append(self.get_setting('IP_ADDRESS'))
         all_templates = LabelTemplate.objects.all()
         for template in all_templates:
-            if 'ip_address' in template.metadata:
-                all_printer.append(template.metadata['ip_address'])
+            try:
+                if 'ip_address' in template.metadata:
+                    all_printer.append(template.metadata['ip_address'])
+            except Exception:
+                pass
         return all_printer
