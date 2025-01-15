@@ -11,10 +11,12 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
 from django.core.validators import MaxValueValidator
 from django.core.files.base import ContentFile
+from django_q.models import Task
 
 # InvenTree plugin libs
 from plugin import InvenTreePlugin
-from plugin.mixins import LabelPrintingMixin, SettingsMixin
+from plugin.mixins import LabelPrintingMixin, SettingsMixin, ScheduleMixin
+from report.models import LabelTemplate
 
 # Zebra printer support
 import zpl
@@ -23,7 +25,7 @@ from .version import ZEBRA_PLUGIN_VERSION
 from .request_wrappers import Wrappers
 
 
-class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
+class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, ScheduleMixin):
 
     AUTHOR = "Michael Buchmann"
     DESCRIPTION = "Label printing plugin for Zebra printers"
@@ -83,7 +85,53 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'description': _('Additional ZPL commands sent to the printer. Use carefully!'),
             'default': '~TA000~JSN^LT0^MNW^MTT^PMN^PON^PR2,2^LRN',
         },
+        'ENABLE_PRINTER_INFO': {
+            'name': 'Get Printer Info',
+            'description': 'Collect status info from all IP printers regularly',
+            'default': True,
+            'validator': bool,
+        },
     }
+
+    SCHEDULED_TASKS = {
+        'member': {
+            'func': 'ping_printer',
+            'schedule': 'I',
+            'minutes': 1,
+        }
+    }
+
+    def get_settings_content(self, request):
+        t = Task.objects.filter(group='plugin.zebra.member')[0]
+        table_rows = ''
+        for printer in t.result:
+            table_rows = table_rows + f"""<tr><td>{printer.get('interface')}</td>
+                                            <td>{printer.get('printer_model')}</td>
+                                            <td>{printer.get('printer_name')}</td>
+                                            <td>{printer.get('sw_version')}</td>
+                                            <td>{printer.get('dpi')}</td>
+                                            <td>{printer.get('paper_out')}</td>
+                                            <td>{printer.get('head_up')}</td>
+                                            <td>{printer.get('total_print_length')}</td>
+                                            <td>{printer.get('memory')}</td>
+                                        </tr>"""
+        return f"""
+        <h4>Printer Status:</h4>
+        <table class='table table-condensed'>
+            <tr>
+                <th> Interface </th>
+                <th> Printer Model </th>
+                <th> Printer Name </th>
+                <th> SW Version </th>
+                <th> dpi </th>
+                <th> Paper out </th>
+                <th> Head Up </th>
+                <th> Print Length </th>
+                <th> Memory </th></tr>
+            <tr>
+            {table_rows}
+        </table>
+        """
 
     def print_label(self, **kwargs):
 
@@ -193,3 +241,108 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
     def get_generated_file(self, **kwargs):
         return self.preview_result
+
+    def ping_printer(self, *args, **kwargs):
+
+        printer_data = []
+        if not self.get_setting('ENABLE_PRINTER_INFO'):
+            return (printer_data)
+        connection = self.get_setting('CONNECTION')
+        if (connection == 'network'):
+            port = int(self.get_setting('PORT'))
+            all_printer = self.collect_all_ipprinter()
+            for printer in all_printer:
+                data = self.get_all_printer_data(printer, port)
+                printer_data.append(data)
+            return (printer_data)
+        elif (connection == 'local'):
+            interface = self.get_setting('LOCAL_IF')
+            printer_data.append(self.get_all_printer_data(interface))
+            return (printer_data)
+        else:
+            printer_data.append({'interface': 'preview', 'printer_model': 'Preview printer skipped'})
+            return (printer_data)
+
+# ----------------------------------------------------------------------------
+    def get_all_printer_data(self, printer, port=None):
+
+        if port is None:
+            result = self.get_printer_data(printer, '~HI')
+            result_hs = self.get_printer_data(printer, '~HS')
+            printer_name = self.get_printer_data(printer, '! U1 getvar "device.friendly_name"\r\n')
+            head_up = self.get_printer_data(printer, '! U1 getvar "head.latch"\r\n')
+            total_print_length = self.get_printer_data(printer, '! U1 getvar "odometer.total_print_length"\r\n')
+        else:
+            result = self.get_ipprinter_data(printer, port, '~HI')
+            result_hs = self.get_ipprinter_data(printer, port, '~HS')
+            printer_name = self.get_ipprinter_data(printer, port, '! U1 getvar "device.friendly_name"\r\n')
+            head_up = self.get_ipprinter_data(printer, port, '! U1 getvar "head.latch"\r\n')
+            total_print_length = self.get_ipprinter_data(printer, port, '! U1 getvar "odometer.total_print_length"\r\n')
+        try:
+            result.split(',')[1]
+            result_hs.split(',')[1]
+        except Exception:
+            printer_data = {'interface': printer, 'printer_model': f'HI:{result}, HS:{result_hs}'}
+            return (printer_data)
+        try:
+            total_print_length = total_print_length.replace('"', '')
+            total_print_length = total_print_length.split(',')[1]
+        except Exception:
+            total_print_length = ''
+        result_hs = result_hs.replace('\n', ',')
+        printer_data = {
+            'interface': printer,
+            'printer_model': result.split(',')[0],
+            'printer_name': printer_name,
+            'sw_version': result.split(',')[1],
+            'dpi': result.split(',')[2],
+            'memory': result.split(',')[3],
+            'paper_out': result_hs.split(',')[1],
+            'head_up': head_up,
+            'total_print_length': total_print_length,
+        }
+        return (printer_data)
+
+# --------------------------- get_printer_data --------------------------------
+    def get_ipprinter_data(self, ip_address, port, command):
+        try:
+            mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            mysocket.settimeout(5)
+            mysocket.connect((ip_address, port))
+            mysocket.send(command.encode())
+            result = mysocket.recv(1000)
+            mysocket.close()
+        except Exception as error:
+            return (f'Connection error on {ip_address}: {error}')
+        return result.decode('UTF-8')
+
+# --------------------------- get_printer_data --------------------------------
+    def get_printer_data(self, device, command):
+        try:
+            printer = open(device, 'r+')
+            printer.write(command)
+            result = ''
+            to = 0
+            while result == '' and to < 10:
+                to = to + 1
+                result = printer.read()
+            printer.close()
+        except Exception as error:
+            return (f'Connection Error on {device}: {error}')
+        if to == 10:
+            return (f'Bad response from {device}')
+        return result
+
+# -----------------------------------------------------------------------------
+    def collect_all_ipprinter(self):
+
+        all_printer = []
+        all_printer.append(self.get_setting('IP_ADDRESS'))
+        all_templates = LabelTemplate.objects.all()
+        for template in all_templates:
+            try:
+                if 'ip_address' in template.metadata:
+                    all_printer.append(template.metadata['ip_address'])
+            except Exception:
+                pass
+        return all_printer
