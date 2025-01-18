@@ -194,7 +194,10 @@ With the multi printer feature it can happen that you have several printers in
 your setup. When the Get Printer Info switch is set ON, the driver calls each printer
 once a minute and collects some info about it. It calls the printer configured
 in the settings as well as all printers it finds in the label templates.
-In case a printer is unreachable, an error message is shown.
+In case a printer is unreachable, an error message is shown. If a printer is used
+in several templates it is listed only once.
+
+The printer info feature works for local USB printers too.
 
 ![Printer Info](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/printer_info.png)
 
