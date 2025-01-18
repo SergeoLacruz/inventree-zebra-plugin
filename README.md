@@ -65,6 +65,9 @@ change it according to your requirements. Please keep in mind that this string
 is passed directly to the printer without any checks. So be careful when editing
 here.
 
+### Get Printer info
+Turn this switch on to display a collection of all IP printers below on this page.
+
 ## Label Template
 The label needs a template described in html and css. The template should
 start with a page definition that defines the label size as shown below:
@@ -185,6 +188,14 @@ confidential information to the API.
 In case you need to pass a proxy for the POST requests set the environment
 variables PROXY_CON and PROXY_URL on the server. The plugin does not have
 settings for this.
+
+## Getting printer info
+With the multi printer feature it can happen that you have several printers in
+your setup. When the Get Printer Info switch is set ON, the driver calls each printer
+once a minute and collects some info about it. It calls the printer configured
+in the settings as well as all printers it finds in the label templates.
+In case a printer is unreachable, an error message is shown.
+![Printer Info](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/printer_info.png)
 
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from Django for multi language support.
