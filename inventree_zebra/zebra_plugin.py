@@ -242,6 +242,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
     def get_generated_file(self, **kwargs):
         return self.preview_result
 
+# -----------------------------------------------------------------------------
     def ping_printer(self, *args, **kwargs):
 
         printer_data = []
@@ -342,7 +343,8 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         for template in all_templates:
             try:
                 if 'ip_address' in template.metadata:
-                    all_printer.append(template.metadata['ip_address'])
+                    if template.metadata['ip_address'] not in all_printer:
+                        all_printer.append(template.metadata['ip_address'])
             except Exception:
                 pass
         return all_printer

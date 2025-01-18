@@ -195,6 +195,7 @@ your setup. When the Get Printer Info switch is set ON, the driver calls each pr
 once a minute and collects some info about it. It calls the printer configured
 in the settings as well as all printers it finds in the label templates.
 In case a printer is unreachable, an error message is shown.
+
 ![Printer Info](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/printer_info.png)
 
 ## How it works
