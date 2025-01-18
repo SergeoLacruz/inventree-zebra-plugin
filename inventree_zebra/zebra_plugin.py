@@ -30,7 +30,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
     AUTHOR = "Michael Buchmann"
     DESCRIPTION = "Label printing plugin for Zebra printers"
     VERSION = ZEBRA_PLUGIN_VERSION
-    NAME = "Zebra"
+    NAME = "Zebra labels"
     SLUG = "zebra"
     PUBLISH_DATE = "2024-12-20"
     TITLE = "Zebra Label Printer"
