@@ -306,6 +306,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
 
 # --------------------------- get_printer_data --------------------------------
     def get_ipprinter_data(self, ip_address, port, command):
+
         try:
             mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             mysocket.settimeout(5)
@@ -315,10 +316,16 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             mysocket.close()
         except Exception as error:
             return (f'Connection error on {ip_address}: {error}')
-        return result.decode('UTF-8')
+        result = result.decode('UTF-8')
+
+        # remove the STX and ETX commands from printers answer
+        result = result.replace('\02', '')
+        result = result.replace('\03', '')
+        return result
 
 # --------------------------- get_printer_data --------------------------------
     def get_printer_data(self, device, command):
+
         try:
             printer = open(device, 'r+')
             printer.write(command)
@@ -332,6 +339,10 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             return (f'Connection Error on {device}: {error}')
         if to == 10:
             return (f'Bad response from {device}')
+
+        # remove the STX and ETX commands from printers answer
+        result = result.replace('\02', '')
+        result = result.replace('\03', '')
         return result
 
 # -----------------------------------------------------------------------------

@@ -222,7 +222,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase)
 The name of the class can be freely chosen but should be different from SLUG. Otherwise it does not
 show up. You reference to it in the entry_points section of the setup.py file.
 The parameters need to be like in the example. Then there is the description block. The keywords are fixed and
-need to be like that. The values are found in the UI as shown in the pictures below.
+need to be like that. The values are found in the UI as shown in the picture below.
 
 ![Config](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/plugin.png)
 
