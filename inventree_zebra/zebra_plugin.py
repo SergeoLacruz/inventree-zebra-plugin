@@ -102,19 +102,23 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
     }
 
     def get_settings_content(self, request):
-        t = Task.objects.filter(group='plugin.zebra.member')[0]
+
         table_rows = ''
-        for printer in t.result:
-            table_rows = table_rows + f"""<tr><td>{printer.get('interface')}</td>
-                                            <td>{printer.get('printer_model')}</td>
-                                            <td>{printer.get('printer_name')}</td>
-                                            <td>{printer.get('sw_version')}</td>
-                                            <td>{printer.get('dpi')}</td>
-                                            <td>{printer.get('paper_out')}</td>
-                                            <td>{printer.get('head_up')}</td>
-                                            <td>{printer.get('total_print_length')}</td>
-                                            <td>{printer.get('memory')}</td>
-                                        </tr>"""
+        try:
+            t = Task.objects.filter(group='plugin.zebra.member')[0]
+            for printer in t.result:
+                table_rows = table_rows + f"""<tr><td>{printer.get('interface')}</td>
+                                                <td>{printer.get('printer_model')}</td>
+                                                <td>{printer.get('printer_name')}</td>
+                                                <td>{printer.get('sw_version')}</td>
+                                                <td>{printer.get('dpi')}</td>
+                                                <td>{printer.get('paper_out')}</td>
+                                                <td>{printer.get('head_up')}</td>
+                                                <td>{printer.get('total_print_length')}</td>
+                                                <td>{printer.get('memory')}</td>
+                                            </tr>"""
+        except Exception:
+            pass
         return f"""
         <h4>Printer Status:</h4>
         <table class='table table-condensed'>
