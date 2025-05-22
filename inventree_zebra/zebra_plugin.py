@@ -138,8 +138,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         """
 
     class PrintingOptionsSerializer(serializers.Serializer):
-            number_of_labels = serializers.IntegerField(max_value=100, min_value=1 , default=1)
-
+        number_of_labels = serializers.IntegerField(max_value=100, min_value=1, default=1)
 
     def print_label(self, **kwargs):
 
@@ -184,7 +183,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             li.labelhome(0, 0)
             li.zpl_raw(printer_init)
             li.origin(0, 0)
-            li.zpl_raw('^PQ'+ str(number_of_labels))
+            li.zpl_raw('^PQ' + str(number_of_labels))
             li.zpl_raw(raw_zpl)
             li.endorigin()
         else:
