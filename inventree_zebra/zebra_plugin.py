@@ -201,6 +201,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             li.labelhome(0, 0)
             li.zpl_raw(printer_init)
             li.origin(0, 0)
+            li.zpl_raw('^PQ' + str(number_of_labels))
             li.write_graphic(label_image, width)
             li.endorigin()
 
