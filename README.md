@@ -12,16 +12,16 @@ support for Zebra Label printers. It allows two modes of operation:
 
 It can output the print data either to a local printer connected to the computer via
 USB or to a network printer with an IP address. The output can be configured in the
-InvenTree plugin user interface. A preview using the labalary API is also possible. 
+InvenTree plugin user interface. A preview using the labalary API is also possible.
 The plugin allows to print the same label multiple times e.g. to put in on the front
 and back side of a box. Just increase the Number of labels parameter in the print
 form. This feature just adds a ^PQ command to the ZPL code. The maximum value is 99.
 
-Error handling is very basic.
 
 ## Installation
 
-The plugin is on pypi. Install this plugin using pip with the following command:
+The latest release of the plugin is on pypi. Install this plugin using pip withr
+the following command:
 
 ```
 pip install inventree-zebra-plugin
@@ -34,7 +34,8 @@ The last one is useful for preview of labels, especially when ZPL templates are 
 Default value is a local printer.
 
 ### IP address
-In case you use an IP printer set the IPv4 address here.
+In case you use an IP printer set the IPv4 address here. This can be overwritten
+by the template. See below.
 
 ### Port
 In case you use an IP printer set the port number here. The default port number is 9100.
@@ -50,7 +51,7 @@ better print result. The threshold between black and white can be adjusted here.
 ### Darkness
 This is a value that influences the darkness of the print. Allowed values are 0 (white) to 30 (black).
 It is directly converted to a SD command in ZPL. If your black areas tend to blur out reduce the
-darkness.
+darkness. This can be overwritten by the template.
 
 ### Dots per mm
 This sets the resolution of the printer. You can choose between 8, 12 and 24
@@ -91,11 +92,11 @@ The height and width parameters are defined in the InvenTree admin panel
 in the label section. These values have to fit the label size that is in
 the printer. See the example templates for details on template definition.
 
-## Multi printer hack
+## Multi printer usage
 We have the requirement to print labels in different sizes. As we do not
 want to change the reel for each print we set up a second printer loaded
-with a different label size. InvenTree is not yet able to handle different
-printers. So I added a multi printer hack. You can define a key with an IP
+with a different label size. The plugin allows to add multiple printers
+controlled by the label template. Just define a key with an IP
 address in the label meta data:
 
 ```
@@ -205,6 +206,10 @@ in several templates it is listed only once.
 The printer info feature works for local USB printers too.
 
 ![Printer Info](https://github.com/SergeoLacruz/inventree-zebra-plugin/blob/master/pictures/printer_info.png)
+
+This info is only visible in the classical user interface of InvenTree. For
+PUI the UI api as changed. The plugin does not support that so far.
+
 
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from Django for multi language support.
