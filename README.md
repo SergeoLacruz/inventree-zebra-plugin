@@ -12,7 +12,10 @@ support for Zebra Label printers. It allows two modes of operation:
 
 It can output the print data either to a local printer connected to the computer via
 USB or to a network printer with an IP address. The output can be configured in the
-InvenTree plugin user interface.
+InvenTree plugin user interface. A preview using the labalary API is also possible. 
+The plugin allows to print the same label multiple times e.g. to put in on the front
+and back side of a box. Just increase the Number of labels parameter in the print
+form. This feature just adds a ^PQ command to the ZPL code. The maximum value is 99.
 
 Error handling is very basic.
 
@@ -173,7 +176,9 @@ The upper label was created using this template:
 ```
 
 Autoescape must be off. We do not need &quot and similar escapes here.
-Context variables can be used as usual.
+Context variables can be used as usual. Start and stop commands ^XA and
+^XZ are added by the driver and not allowed in the template. The printer
+init string as given in the settings is added as usual.
 
 !!! warning "Limitation"
     ZPL commands starting with backslash like \\& cannot be used so far.
