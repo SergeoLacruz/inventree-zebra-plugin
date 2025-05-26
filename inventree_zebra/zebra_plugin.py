@@ -12,12 +12,12 @@ from django.core.validators import MinValueValidator
 from django.core.validators import MaxValueValidator
 from django.core.files.base import ContentFile
 from django_q.models import Task
+from rest_framework import serializers
 
 # InvenTree plugin libs
 from plugin import InvenTreePlugin
 from plugin.mixins import LabelPrintingMixin, SettingsMixin, ScheduleMixin
 from report.models import LabelTemplate
-
 # Zebra printer support
 import zpl
 
@@ -137,6 +137,9 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         </table>
         """
 
+    class PrintingOptionsSerializer(serializers.Serializer):
+        number_of_labels = serializers.IntegerField(max_value=99, min_value=1, default=1)
+
     def print_label(self, **kwargs):
 
         # Read settings
@@ -150,6 +153,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         # Extract width (x) and height (y) information.
         width = kwargs['width']
         height = kwargs['height']
+        number_of_labels = kwargs['printing_options']['number_of_labels']
 
         # Select the right printer.
         # This is a multi printer hack. In case the label has an IP address in the metadata
@@ -179,6 +183,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             li.labelhome(0, 0)
             li.zpl_raw(printer_init)
             li.origin(0, 0)
+            li.zpl_raw('^PQ' + str(number_of_labels))
             li.zpl_raw(raw_zpl)
             li.endorigin()
         else:
@@ -196,6 +201,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             li.labelhome(0, 0)
             li.zpl_raw(printer_init)
             li.origin(0, 0)
+            li.zpl_raw('^PQ' + str(number_of_labels))
             li.write_graphic(label_image, width)
             li.endorigin()
 
