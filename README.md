@@ -102,13 +102,14 @@ address in the label meta data:
 ```
 {"ip_address":"xxx.yyy.zzz.eee"}
 {"darkness":xx}
+{"dpmm":xx}
 ```
 
 If the printer driver finds that key, the IP address from the printer settings
 is overwritten with the address from the meta data. So the print will end up
 in another printer.
 
-Only the IP address and darkness can be overwritten so far. All other settings remain.
+Only the IP address, darkness and dpmm can be overwritten so far. All other settings remain.
 
 ## Quality matters
 The InvenTree printer system uses a graphical representation of the label. The label is described
