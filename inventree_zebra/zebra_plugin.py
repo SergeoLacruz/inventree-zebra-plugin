@@ -32,7 +32,7 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
     VERSION = ZEBRA_PLUGIN_VERSION
     NAME = "Zebra labels"
     SLUG = "zebra"
-    PUBLISH_DATE = "2024-12-20"
+    PUBLISH_DATE = "2025-08-07"
     TITLE = "Zebra Label Printer"
     preview_result = ''
 
