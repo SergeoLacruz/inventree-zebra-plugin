@@ -147,7 +147,6 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         interface = self.get_setting('LOCAL_IF')
         port = int(self.get_setting('PORT'))
         threshold = self.get_setting('THRESHOLD')
-        dpmm = int(self.get_setting('DPMM'))
         printer_init = self.get_setting('PRINTER_INIT')
 
         # Extract width (x) and height (y) information.
@@ -168,6 +167,10 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
             darkness = label.metadata['darkness']
         except Exception:
             darkness = self.get_setting('DARKNESS')
+        try:
+            dpmm = int(label.metadata['dpmm'])
+        except Exception:
+            dpmm = int(self.get_setting('DPMM'))
         try:
             zpl_template = label.metadata['zpl_template']
         except Exception:
