@@ -32,9 +32,10 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
     VERSION = ZEBRA_PLUGIN_VERSION
     NAME = "Zebra labels"
     SLUG = "zebra"
-    PUBLISH_DATE = "2025-08-07"
+    PUBLISH_DATE = "2025-10-04"
     TITLE = "Zebra Label Printer"
     preview_result = ''
+    ADMIN_SOURCE = 'ui_settings.js'
 
 #    BLOCKING_PRINT = True
     SETTINGS = {
@@ -101,45 +102,57 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
         }
     }
 
-    def get_settings_content(self, request):
-
+# ---------------------------- get the printer status --------------------------
+    # Get info from the printer
+    def show_printer_status(self):
         table_rows = ''
+        t = Task.objects.filter(group='plugin.zebra.member')[0]
         try:
-            t = Task.objects.filter(group='plugin.zebra.member')[0]
             for printer in t.result:
-                table_rows = table_rows + f"""<tr><td>{printer.get('interface')}</td>
-                                                <td>{printer.get('printer_model')}</td>
-                                                <td>{printer.get('printer_name')}</td>
-                                                <td>{printer.get('sw_version')}</td>
-                                                <td>{printer.get('dpi')}</td>
-                                                <td>{printer.get('paper_out')}</td>
-                                                <td>{printer.get('head_up')}</td>
-                                                <td>{printer.get('total_print_length')}</td>
-                                                <td>{printer.get('memory')}</td>
+                table_rows = table_rows + f"""<tr><td style="text-align:center">{printer.get('interface')}</td>
+                                                <td style="text-align:center">{printer.get('printer_model')}</td>
+                                                <td style="text-align:center">{printer.get('printer_name')}</td>
+                                                <td style="text-align:center">{printer.get('sw_version')}</td>
+                                                <td style="text-align:center">{printer.get('dpi')}</td>
+                                                <td style="text-align:center">{printer.get('paper_out')}</td>
+                                                <td style="text-align:center">{printer.get('head_up')}</td>
+                                                <td style="text-align:center">{printer.get('total_print_length')}</td>
+                                                <td style="text-align:center">{printer.get('memory')}</td>
                                             </tr>"""
+
+            return f"""
+            <h4>Printer Status:</h4>
+            <table width=100%>
+                <tr>
+                    <th style="text-align:center" width=10%> Interface </th>
+                    <th style="text-align:center" width=20%> Printer Model </th>
+                    <th style="text-align:center" width=16%> Printer Name </th>
+                    <th style="text-align:center" width=11%> SW Version </th>
+                    <th style="text-align:center" width=5%> dpi </th>
+                    <th style="text-align:center" width=9%> Paper out </th>
+                    <th style="text-align:center" width=9%> Head Up </th>
+                    <th style="text-align:center" width=11%> Print Length </th>
+                    <th style="text-align:center" width=9%> Memory </th></tr>
+                <tr>
+                {table_rows}
+            </table>
+            """
         except Exception:
             pass
-        return f"""
-        <h4>Printer Status:</h4>
-        <table class='table table-condensed'>
-            <tr>
-                <th> Interface </th>
-                <th> Printer Model </th>
-                <th> Printer Name </th>
-                <th> SW Version </th>
-                <th> dpi </th>
-                <th> Paper out </th>
-                <th> Head Up </th>
-                <th> Print Length </th>
-                <th> Memory </th></tr>
-            <tr>
-            {table_rows}
-        </table>
-        """
 
+        # This is for PUI
+    def get_admin_context(self):
+        return(self.show_printer_status())
+
+    # This is for CUI
+    def get_settings_content(self, request):
+        return(self.show_printer_status())
+
+# ---------------------------- for several labels -----------------------------
     class PrintingOptionsSerializer(serializers.Serializer):
         number_of_labels = serializers.IntegerField(max_value=99, min_value=1, default=1)
 
+# ------------------------------- print the label -----------------------------
     def print_label(self, **kwargs):
 
         # Read settings
