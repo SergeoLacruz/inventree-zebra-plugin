@@ -142,11 +142,11 @@ class ZebraLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin, Sched
 
         # This is for PUI
     def get_admin_context(self):
-        return(self.show_printer_status())
+        return (self.show_printer_status())
 
     # This is for CUI
     def get_settings_content(self, request):
-        return(self.show_printer_status())
+        return (self.show_printer_status())
 
 # ---------------------------- for several labels -----------------------------
     class PrintingOptionsSerializer(serializers.Serializer):
