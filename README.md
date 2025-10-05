@@ -211,6 +211,17 @@ The printer info feature works for local USB printers too.
 This info is only visible in the classical user interface of InvenTree. For
 PUI the UI api as changed. The plugin does not support that so far.
 
+## Inventree 1.0
+The UI features of the driver are minimal. There is only the printer status list
+in the settings. The function get_settings_content is replaced by get_admin_context.
+Some lines of javascript code in ./static and some table tweaks are needed.
+That's basically it. The printer logic remains the same and works fine with Inventree 1.0.
+
+The machine interface is not used yet. We have no need for it. Our method to support
+several printers binds the template fix to a dedicated printer. No way to print a
+50x30 label on a printer loaded with 20x12 labels. the only drawback is that the
+templates metadata field needs to be edited manually in the admin interface. But
+this is done seldom.
 
 ## How it works
 First import all the stuff you need. Here we use the translation mechanism from Django for multi language support.
