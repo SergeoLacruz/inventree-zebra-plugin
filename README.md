@@ -354,9 +354,9 @@ The can be edited based on our personal setup.
 Finally there are commands that are again inserted by the ZPL library:
 
 | Command| Description        |
-| ------ | ------------------- |
+| ------ | ------------------ |
 | ^FO0,0 | Start field        |
-| ^PQ1   | Print on label     |
+| ^PQ1   | Label count (one)  |
 | ^GFA   | Graphics bit field |
 | ...    | Graphics data      |
 | ^FS    | End of field       |
