@@ -1,3 +1,3 @@
 include LICENSE
 include README.md
-recursive-include inventree_tzabea_plugin/static *
+recursive-include inventree_zebra_plugin/static *
