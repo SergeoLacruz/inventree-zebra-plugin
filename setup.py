@@ -47,7 +47,7 @@ setuptools.setup(
             "ZebraLabeLPlugin = inventree_zebra.zebra_plugin:ZebraLabelPlugin"
         ]
     },
-
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
