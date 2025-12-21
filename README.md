@@ -216,7 +216,6 @@ The UI features of the driver are minimal. There is only the printer status list
 in the settings. The function get_settings_content is replaced by get_admin_context.
 Some lines of javascript code in ./static and some table tweaks are needed.
 That's basically it. The printer logic remains the same and works fine with Inventree 1.0.
-However this has not been testet yet to full extend. Issues might be there.
 
 The machine interface is not used yet. We have no need for it. Our method to support
 several printers binds the template fix to a dedicated printer. No way to print a
