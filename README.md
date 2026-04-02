@@ -27,6 +27,9 @@ the following command:
 pip install inventree-zebra-plugin
 ```
 
+If you use a virtual environment make sure that the plugin is installed in the 
+same environment. Alternatively install the plugin from the Inventree UI. 
+
 ## Configuration Options
 ### Printer Interface
 Here you can chose between local printer, network printer or the labelary.com API.
